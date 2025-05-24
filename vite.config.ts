@@ -39,7 +39,7 @@ export default defineConfig({
     plugins: [
         ...VitePluginNode({
             adapter: 'express',
-            appPath: './src/Xenocline.ts',
+            appPath: './src/xenocline.ts',
             exportName: 'viteNodeApp',
             tsCompiler: 'swc',
         }),
@@ -68,11 +68,11 @@ export default defineConfig({
         target: 'esnext',
         outDir: 'dist',
         lib: {
-            entry: './src/Xenocline.ts',
+            entry: './src/xenocline.ts',
             formats: ['es'],
         },
         rollupOptions: {
-            input: 'src/Xenocline.ts',
+            input: 'src/xenocline.ts',
             output: {
                 format: 'esm',
                 entryFileNames: '[name].js',
