@@ -1,21 +1,20 @@
 import { Context } from '../context';
-import {
-    executeAggregatorNode
-} from './aggregator';
+import { createAggregatorNodeEvent, createPhaseNodeEvent } from '../event/node';
+import { createDecisionEvent } from '../event/transition';
 import { Input } from '../input';
-import { handleNextStep } from './next';
 import { AggregatorNode, isAggregatorNode } from '../node/aggregatornode';
 import { isPhaseNode, PhaseNode } from '../node/phasenode';
 import { Output } from '../output';
 import { Connection } from '../transition/connection';
 import { Decision, isDecision } from '../transition/decision';
 import { Termination } from '../transition/termination';
-import { ExecutionState } from './process';
-import { createDecisionEvent } from '../event/transition';
+import {
+    executeAggregatorNode
+} from './aggregator';
 import { dispatchEvent } from './event';
-import { createAggregatorNodeEvent, createPhaseNodeEvent } from '../event/node';
-import { createPhaseEvent } from '../event/phase';
-
+import { handleNextStep } from './next';
+import { executePhase } from './phase';
+import { ExecutionState } from './process';
 
 export async function executeNode(
     nodeId: string,
@@ -84,12 +83,13 @@ export async function executeNode(
 
                 dispatchEvent(state.eventState, createPhaseNodeEvent(nodeId, 'start', node, { input }), state.context);
 
-                dispatchEvent(state.eventState, createPhaseEvent(nodeId, 'start', node.phase, { input }), state.context);
+                output = await executePhase(nodeId, node, input, state);
 
-                output = await node.phase.execute(input);
-
-                dispatchEvent(state.eventState, createPhaseEvent(nodeId, 'execute', node.phase, { input, output }), state.context);
-
+                if (node.process) {
+                    const [processedOutput, processedContext] = await node.process(output, state.context);
+                    output = processedOutput;
+                    state.context = processedContext;
+                }
 
                 //console.log('[EXECUTE_NODE_RECURSIVE_PHASE_NODE_EXECUTE_END]', { nodeId, output });
             } else {
@@ -187,5 +187,6 @@ export async function executeNode(
 
     //console.log('[EXECUTE_NODE_RECURSIVE_END_RETURNING_PROMISE]', { nodeId });
     return executionPromise;
+
 }
 
