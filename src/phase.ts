@@ -19,6 +19,7 @@ export interface Phase<T extends Input = Input, U extends Output = Output> {
 
 export interface PhaseOptions<T extends Input = Input, U extends Output = Output> {
     execute: ExecuteMethod<T, U>;
+    verify?: VerifyMethod<T>;
 }
 
 
@@ -37,7 +38,8 @@ export const createPhase = <T extends Input = Input, U extends Output = Output>(
 
     return {
         name,
-        execute: phaseOptions.execute
+        execute: phaseOptions.execute,
+        verify: phaseOptions.verify,
     };
 }
 
