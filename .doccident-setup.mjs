@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { transform } from '@babel/core';
 // eslint-disable-next-line import/extensions
-import * as Xenocline from './dist/Xenocline.js';
+import * as Xenocline from './dist/xenocline.js';
 
 export default {
     "globals": {

@@ -51,7 +51,7 @@ export const isAggregatorNodeEvent = (item: any): item is AggregatorNodeEvent =>
 };
 
 // Phase Node Types
-export type PhaseNodeEventStage = 'start' | 'end';
+export type PhaseNodeEventStage = 'start' | 'prepared' | 'processed' | 'end';
 
 export interface PhaseEventData extends EventData {
     input?: Input;
