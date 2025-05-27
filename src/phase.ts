@@ -2,15 +2,24 @@ import { clean } from "./util/general";
 import { Input } from "./input";
 import { Output } from "./output";
 
+export interface VerifyMethodResponse {
+    verified: boolean;
+    messages: string[];
+}
+
+export type VerifyMethod<I extends Input = Input> = (input: I) => Promise<VerifyMethodResponse>;
+
 export type ExecuteMethod<T extends Input = Input, U extends Output = Output> = (input: T) => Promise<U>;
 
 export interface Phase<T extends Input = Input, U extends Output = Output> {
     name: string;
+    verify?: VerifyMethod<T>;
     execute: (input: T) => Promise<U>;
 }
 
 export interface PhaseOptions<T extends Input = Input, U extends Output = Output> {
     execute: ExecuteMethod<T, U>;
+    verify?: VerifyMethod<T>;
 }
 
 
@@ -29,7 +38,8 @@ export const createPhase = <T extends Input = Input, U extends Output = Output>(
 
     return {
         name,
-        execute: phaseOptions.execute
+        execute: phaseOptions.execute,
+        verify: phaseOptions.verify,
     };
 }
 
