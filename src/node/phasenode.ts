@@ -25,19 +25,21 @@ export interface PhaseNode<
     process?: ProcessMethod;
 }
 
-export interface PhaseNodeOptions<O extends Output = Output, C extends Context = Context> {
+export interface PhaseNodeOptions<I extends Input = Input, O extends Output = Output, C extends Context = Context> {
     next?: Next<O, C>;
+    prepare?: PrepareMethod<I, C>;
+    process?: ProcessMethod<O, C>;
 }
 
-export const DEFAULT_PHASE_NODE_OPTIONS: PhaseNodeOptions<Output, Context> = {
+export const DEFAULT_PHASE_NODE_OPTIONS: PhaseNodeOptions<Input, Output, Context> = {
 }
 
 export const createPhaseNode = <I extends Input = Input, O extends Output = Output, C extends Context = Context>(
     id: string,
     phase: Phase<I, O>,
-    options?: Partial<PhaseNodeOptions<O, C>>
+    options?: Partial<PhaseNodeOptions<I, O, C>>
 ): Readonly<PhaseNode<I, O>> => {
-    let phaseNodeOptions: PhaseNodeOptions<O, C> = { ...DEFAULT_PHASE_NODE_OPTIONS } as unknown as PhaseNodeOptions<O, C>;
+    let phaseNodeOptions: PhaseNodeOptions<I, O, C> = { ...DEFAULT_PHASE_NODE_OPTIONS } as unknown as PhaseNodeOptions<I, O, C>;
     if (options) {
         phaseNodeOptions = { ...phaseNodeOptions, ...clean(options) };
     }
@@ -45,6 +47,8 @@ export const createPhaseNode = <I extends Input = Input, O extends Output = Outp
     return {
         ...createNode('phase', id, { next: phaseNodeOptions.next }),
         phase,
+        prepare: phaseNodeOptions.prepare,
+        process: phaseNodeOptions.process,
     } as PhaseNode<I, O>;
 };
 

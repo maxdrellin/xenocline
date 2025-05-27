@@ -124,4 +124,59 @@ describe('Beginning', () => {
             expect(isBeginning([])).toBe(false);
         });
     });
+
+    describe('validateBeginning', () => {
+        it('should return an empty array for a valid Beginning object', () => {
+            const beginning = createBeginning('validId', 'targetNode');
+            expect(require('../../src/transition/beginning').validateBeginning(beginning)).toEqual([]);
+        });
+
+        it('should return errors from validateTransition for null or undefined input', () => {
+            const validateBeginning = require('../../src/transition/beginning').validateBeginning;
+            expect(validateBeginning(null)).toEqual([
+                { coordinates: ['Beginning', 'Transition'], error: 'Transition is undefined or null.' }
+            ]);
+            expect(validateBeginning(undefined)).toEqual([
+                { coordinates: ['Beginning', 'Transition'], error: 'Transition is undefined or null.' }
+            ]);
+        });
+
+        it('should return errors from validateTransition for a non-object input', () => {
+            const validateBeginning = require('../../src/transition/beginning').validateBeginning;
+            expect(validateBeginning('not-an-object')).toEqual([
+                { coordinates: ['Beginning', 'Transition'], error: 'Transition is not an object.' }
+            ]);
+        });
+
+        it('should return errors from validateTransition for an empty object', () => {
+            const validateBeginning = require('../../src/transition/beginning').validateBeginning;
+            expect(validateBeginning({})).toEqual([
+                { coordinates: ['Beginning', 'Transition'], error: 'Transition id is undefined or not a string.' },
+                { coordinates: ['Beginning', 'Transition'], error: 'Transition type is undefined or not a string.' },
+                { coordinates: ['Beginning', 'Transition'], error: 'Transition type is not a valid type.' },
+                { coordinates: ['Beginning', 'Transition', 'Transition: undefined'], error: 'Transition type is undefined or not a string.' }
+            ]);
+        });
+
+        it('should return error if begin is present but not a function', () => {
+            const validateBeginning = require('../../src/transition/beginning').validateBeginning;
+            const invalidItem: any = { id: 'b1', type: 'beginning', targetNodeId: 'n1', begin: 'not-a-function' };
+            expect(validateBeginning(invalidItem)).toEqual([
+                { coordinates: ['Beginning', 'Termination: b1'], error: 'begin is not a function.' }
+            ]);
+        });
+
+        it('should correctly use coordinates when provided', () => {
+            const validateBeginning = require('../../src/transition/beginning').validateBeginning;
+            const errorsForEmptyObj = validateBeginning({}, ['Root']);
+            expect(errorsForEmptyObj.length).toBe(4);
+            expect(errorsForEmptyObj[0].coordinates.slice(0, 2)).toEqual(['Root', 'Beginning']);
+
+            const item = { id: 'b2', type: 'beginning', targetNodeId: 'n2', begin: 'not-func' };
+            const errorsForInvalidBeginning = validateBeginning(item, ['Root']);
+            expect(errorsForInvalidBeginning.length).toBe(1);
+            expect(errorsForInvalidBeginning[0].coordinates).toEqual(['Root', 'Beginning', 'Termination: b2']);
+            expect(errorsForInvalidBeginning[0].error).toBe('begin is not a function.');
+        });
+    });
 });
