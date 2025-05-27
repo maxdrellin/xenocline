@@ -23,7 +23,7 @@
         "start": "node dist/Xenocline.js",
         "dev": "vite",
         "watch": "vite build --watch",
-        "test": "pnpm run test:coverage",
+        "test": "pnpm run test:coverage && pnpm run test:readme",
         "test:coverage": "jest --coverage",
         "test:readme": "doccident -c .doccident-setup.mjs README.md",
         "lint": "eslint . --ext .ts",
