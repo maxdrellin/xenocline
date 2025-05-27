@@ -83,6 +83,15 @@ export async function executeNode(
 
                 dispatchEvent(state.eventState, createPhaseNodeEvent(nodeId, 'start', node, { input }), state.context);
 
+                if (node.prepare) {
+                    const [preparedInput, preparedContext] = await node.prepare(input, state.context);
+                    input = preparedInput;
+                    state.context = preparedContext;
+                }
+
+                dispatchEvent(state.eventState, createPhaseNodeEvent(nodeId, 'prepared', node, { input }), state.context);
+
+
                 output = await executePhase(nodeId, node, input, state);
 
                 if (node.process) {
@@ -90,6 +99,8 @@ export async function executeNode(
                     output = processedOutput;
                     state.context = processedContext;
                 }
+
+                dispatchEvent(state.eventState, createPhaseNodeEvent(nodeId, 'processed', node, { input, output }), state.context);
 
                 //console.log('[EXECUTE_NODE_RECURSIVE_PHASE_NODE_EXECUTE_END]', { nodeId, output });
             } else {

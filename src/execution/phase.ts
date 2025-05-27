@@ -8,12 +8,6 @@ import { ExecutionState } from './process';
 export async function executePhase(nodeId: string, node: PhaseNode, input: Input, state: ExecutionState): Promise<Output> {
     dispatchEvent(state.eventState, createPhaseEvent(nodeId, 'start', node.phase, { input }), state.context);
 
-    if (node.prepare) {
-        const [preparedInput, preparedContext] = await node.prepare(input, state.context);
-        input = preparedInput;
-        state.context = preparedContext;
-    }
-
     if (node.phase.verify) {
         const verifyResponse = await node.phase.verify(input);
         if (!verifyResponse.verified) {

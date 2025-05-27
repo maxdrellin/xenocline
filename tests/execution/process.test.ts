@@ -387,6 +387,53 @@ describe('executeProcess', () => {
 
         consoleErrorSpy.mockRestore();
     });
+
+    test('should call prepare and process and fire prepared and processed events', async () => {
+        const prepare = jest.fn(async (input: TestInput, context: Context): Promise<[TestInput, Context]> => [
+            { data: 'prepared ' + input.data },
+            { ...context, prepared: true }
+        ]);
+        const process = jest.fn(async (output: TestOutput, context: Context): Promise<[TestOutput, Context]> => [
+            { data: 'processed ' + output.data },
+            { ...context, processed: true }
+        ]);
+        const phaseExecute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: 'executed ' + input.data }));
+        const phase: Phase = { name: 'PhaseWithPrepareProcess', execute: phaseExecute };
+        const phaseNode: PhaseNode = createPhaseNode('p1', phase, { prepare, process });
+        const processDef: Process = createProcess('Test Prepare/Process Events', {
+            phases: { p1: phaseNode },
+        });
+        const initialInput: TestInput = { data: 'start' };
+        const initialContext: Context = { user: 'test' };
+        const events: any[] = [];
+        // Import event helpers for type guards
+        const { isPhaseNodeEvent } = await import('../../src/event/node');
+        const { createEventHandler } = await import('../../src/event/handler');
+        const eventHandler = createEventHandler(async (event, context) => {
+            if (isPhaseNodeEvent(event)) {
+                events.push({ stage: event.stage, data: event.data });
+            }
+        });
+        const beginning: Beginning<Input, Context> = createBeginning('p1', 'p1');
+        await executeProcess(processDef, beginning, {
+            input: initialInput,
+            context: initialContext,
+            eventHandlers: [eventHandler],
+        });
+        // Check that prepare and process were called
+        expect(prepare).toHaveBeenCalledWith(initialInput, initialContext);
+        expect(phaseExecute).toHaveBeenCalledWith({ data: 'prepared start' });
+        expect(process).toHaveBeenCalledWith({ data: 'executed prepared start' }, { user: 'test', prepared: true });
+        // Check that prepared and processed events were fired in order
+        const stages = events.map(e => e.stage);
+        expect(stages).toContain('prepared');
+        expect(stages).toContain('processed');
+        // Check event payloads
+        const preparedEvent = events.find(e => e.stage === 'prepared');
+        expect(preparedEvent.data.input).toEqual({ data: 'prepared start' });
+        const processedEvent = events.find(e => e.stage === 'processed');
+        expect(processedEvent.data.output).toEqual({ data: 'processed executed prepared start' });
+    });
 });
 
 // New describe block for Decision element tests

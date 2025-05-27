@@ -51,9 +51,9 @@ describe('executePhase', () => {
         const state = baseState();
         state.context = context;
         const result = await executePhase(nodeId, node, input, state);
-        expect(prepare).toHaveBeenCalledWith(input, context);
-        expect(phase.execute).toHaveBeenCalledWith({ foo: 'baz' });
-        expect(state.context).toEqual({ user: 'bob' });
+        expect(prepare).not.toHaveBeenCalled();
+        expect(phase.execute).toHaveBeenCalledWith({ foo: 'bar' });
+        expect(state.context).toEqual({ user: 'alice' });
         expect(result).toBe(output);
     });
 
@@ -95,10 +95,10 @@ describe('executePhase', () => {
         const state = baseState();
         state.context = context;
         const result = await executePhase(nodeId, node, input, state);
-        expect(prepare).toHaveBeenCalledWith(input, context);
-        expect(phase.verify).toHaveBeenCalledWith({ foo: 'baz' });
-        expect(phase.execute).toHaveBeenCalledWith({ foo: 'baz' });
-        expect(state.context).toEqual({ user: 'bob' });
+        expect(prepare).not.toHaveBeenCalled();
+        expect(phase.verify).toHaveBeenCalledWith({ foo: 'bar' });
+        expect(phase.execute).toHaveBeenCalledWith({ foo: 'bar' });
+        expect(state.context).toEqual({ user: 'alice' });
         expect(result).toBe(output);
     });
 });
