@@ -44,7 +44,7 @@
         "@doccident/doccident": "^0.0.1"
     },
     "devDependencies": {
-        "@babel/core": "^7.27.3",
+        "@babel/core": "^7.27.7",
         "@babel/plugin-transform-modules-commonjs": "^7.27.1",
         "@babel/plugin-transform-typescript": "^7.27.1",
         "@babel/preset-typescript": "^7.27.1",
