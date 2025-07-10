@@ -20,7 +20,7 @@ export default {
         '@maxdrellin/xenocline': Xenocline
     },
     transformCode: (code) => {
-        // transform the code using @bable/preset-typescript
+        // Transform TypeScript code to JavaScript for doccident documentation testing
         const transformedCode = transform(code, {
             filename: 'test.ts',
             presets: ['@babel/preset-typescript'],
