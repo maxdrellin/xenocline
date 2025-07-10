@@ -29,3 +29,9 @@ tests/
 tsconfig.json
 vite.config.ts
 yarn.lock
+.kodrdriv/
+__mocks__/
+.doccident-setup.mjs
+README.md
+eslint.config.mjs
+
