@@ -12,3 +12,4 @@ output/
 input/
 .Xenocline/
 pnpm-workspace.yaml
+processed/
