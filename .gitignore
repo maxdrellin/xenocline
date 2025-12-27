@@ -12,4 +12,6 @@ output/
 input/
 .Xenocline/
 pnpm-workspace.yaml
-processed/
+processed/.DS_Store
+output/
+.DS_Store
