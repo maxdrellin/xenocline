@@ -1,71 +1,71 @@
 {
-    "name": "@maxdrellin/xenocline",
-    "version": "0.0.5",
-    "description": "Xenocline provides a streamlined, modular framework to manage and execute Processor Pipelines—sequences of computational steps or tasks executed systematically to process data or events. It allows developers to define, connect, and orchestrate individual processors into efficient workflows, supporting clear separation of concerns, scalability, and ease of maintenance.",
-    "main": "dist/xenocline.cjs",
-    "module": "dist/xenocline.js",
-    "type": "module",
-    "bin": {
-        "xenocline": "./dist/xenocline.cjs"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/maxdrellin/xenocline.git"
-    },
-    "packageManager": "pnpm@10.13.1",
-    "exports": {
-        ".": {
-            "types": "./dist/xenocline.d.ts",
-            "import": "./dist/xenocline.js",
-            "require": "./dist/xenocline.cjs"
-        }
-    },
-    "scripts": {
-        "build": "vite build && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/**/*.yaml\" dist",
-        "start": "node dist/xenocline.cjs",
-        "dev": "vite",
-        "watch": "vite build --watch",
-        "test": "pnpm run test:coverage && pnpm run test:readme",
-        "test:coverage": "jest --coverage",
-        "test:readme": "doccident -c .doccident-setup.mjs README.md",
-        "lint": "eslint . --ext .ts",
-        "lint:fix": "eslint . --ext .ts --fix",
-        "clean": "rm -rf dist",
-        "prepublishOnly": "npm run clean && npm run build"
-    },
-    "keywords": [
-        "pipeline",
-        "execution",
-        "workflow"
-    ],
-    "author": "Max Drellin <maxdrellin@yahoo.com>",
-    "license": "Apache-2.0",
-    "dependencies": {
-        "@doccident/doccident": "^0.0.1"
-    },
-    "devDependencies": {
-        "@babel/core": "^7.28.0",
-        "@babel/plugin-transform-modules-commonjs": "^7.27.1",
-        "@babel/plugin-transform-typescript": "^7.28.0",
-        "@babel/preset-typescript": "^7.27.1",
-        "@eslint/eslintrc": "^3.3.1",
-        "@eslint/js": "^9.30.1",
-        "@jest/globals": "^30.0.4",
-        "@rollup/plugin-replace": "^6.0.2",
-        "@swc/core": "^1.12.11",
-        "@types/jest": "^30.0.0",
-        "@types/node": "^24.0.12",
-        "@typescript-eslint/eslint-plugin": "^8.36.0",
-        "@typescript-eslint/parser": "^8.36.0",
-        "copyfiles": "^2.4.1",
-        "eslint": "^9.30.1",
-        "eslint-plugin-import": "^2.32.0",
-        "globals": "^16.3.0",
-        "jest": "^30.0.4",
-        "ts-jest": "^29.4.0",
-        "typescript": "^5.8.3",
-        "vite": "^7.0.4",
-        "vite-plugin-dts": "^4.5.4",
-        "vite-plugin-node": "^7.0.0"
+  "name": "@maxdrellin/xenocline",
+  "version": "0.0.6",
+  "description": "Xenocline provides a streamlined, modular framework to manage and execute Processor Pipelines—sequences of computational steps or tasks executed systematically to process data or events. It allows developers to define, connect, and orchestrate individual processors into efficient workflows, supporting clear separation of concerns, scalability, and ease of maintenance.",
+  "main": "dist/xenocline.cjs",
+  "module": "dist/xenocline.js",
+  "type": "module",
+  "bin": {
+    "xenocline": "./dist/xenocline.cjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxdrellin/xenocline.git"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/xenocline.d.ts",
+      "import": "./dist/xenocline.js",
+      "require": "./dist/xenocline.cjs"
     }
+  },
+  "scripts": {
+    "build": "npm run lint && tsc --noEmit && vite build && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/**/*.yaml\" dist",
+    "start": "node dist/xenocline.cjs",
+    "dev": "vite",
+    "watch": "vite build --watch",
+    "test": "npm run test:coverage && npm run test:readme",
+    "test:coverage": "jest --coverage",
+    "test:readme": "doccident -c .doccident-setup.mjs README.md",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "clean": "rm -rf dist",
+    "precommit": "npm run build && npm run lint && npm run test",
+    "prepublishOnly": "npm run lint && npm run build && npm run test"
+  },
+  "keywords": [
+    "pipeline",
+    "execution",
+    "workflow"
+  ],
+  "author": "Max Drellin <maxdrellin@yahoo.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@doccident/doccident": "^0.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
+    "@babel/plugin-transform-typescript": "^7.28.0",
+    "@babel/preset-typescript": "^7.27.1",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.30.1",
+    "@jest/globals": "^30.0.4",
+    "@rollup/plugin-replace": "^6.0.2",
+    "@swc/core": "^1.12.11",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.12",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
+    "copyfiles": "^2.4.1",
+    "eslint": "^9.30.1",
+    "eslint-plugin-import": "^2.32.0",
+    "globals": "^16.3.0",
+    "jest": "^30.0.4",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4",
+    "vite-plugin-dts": "^4.5.4",
+    "vite-plugin-node": "^7.0.0"
+  }
 }
