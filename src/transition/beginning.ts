@@ -62,7 +62,7 @@ export const validateBeginning = (item: any, coordinates?: string[]): Array<{ co
     errors.push(...validateTransition(item, currentCoordinates));
 
     if (errors.length === 0) {
-        currentCoordinates.push(`Termination: ${item.id}`);
+        currentCoordinates.push(`Beginning: ${item.id}`);
 
         if (item.begin !== undefined && typeof item.begin !== 'function') {
             errors.push({ coordinates: [...currentCoordinates], error: 'begin is not a function.' });
