@@ -12,7 +12,6 @@
         "type": "git",
         "url": "git+https://github.com/maxdrellin/xenocline.git"
     },
-    "packageManager": "pnpm@10.13.1",
     "exports": {
         ".": {
             "types": "./dist/xenocline.d.ts",
@@ -21,17 +20,18 @@
         }
     },
     "scripts": {
-        "build": "vite build && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/**/*.yaml\" dist",
+        "build": "npm run lint && tsc --noEmit && vite build && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/**/*.yaml\" dist",
         "start": "node dist/xenocline.cjs",
         "dev": "vite",
         "watch": "vite build --watch",
-        "test": "pnpm run test:coverage && pnpm run test:readme",
+        "test": "npm run test:coverage && npm run test:readme",
         "test:coverage": "jest --coverage",
         "test:readme": "doccident -c .doccident-setup.mjs README.md",
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint . --ext .ts --fix",
         "clean": "rm -rf dist",
-        "prepublishOnly": "npm run clean && npm run build"
+        "precommit": "npm run build && npm run lint && npm run test",
+        "prepublishOnly": "npm run lint && npm run build && npm run test"
     },
     "keywords": [
         "pipeline",
