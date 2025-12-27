@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { Context } from '../../src/context';
 import { executeProcess, PhaseResults, ProcessResults } from '../../src/execution/process';
 import { Input } from '../../src/input';
@@ -23,8 +23,8 @@ interface TestOutput extends Output {
 }
 
 // Mocks
-const mockPhaseExecute: jest.MockedFunction<(input: Input) => Promise<Output>> =
-    jest.fn(async (input: TestInput): Promise<TestOutput> => {
+const mockPhaseExecute: ReturnType<typeof vi.fn<(input: Input) => Promise<Output>>> =
+    vi.fn(async (input: TestInput): Promise<TestOutput> => {
         if (input && typeof input.data !== 'undefined') {
             return { data: `processed ${input.data}` };
         }
@@ -41,16 +41,16 @@ const mockContext: Context = {};
 // Placeholder for executeProcess tests
 describe('executeProcess', () => {
     let baseProcess: Process;
-    let mockPhase1Execute: jest.MockedFunction<(input: Input) => Promise<Output>>;
-    let mockPhase2Execute: jest.MockedFunction<(input: Input) => Promise<Output>>;
-    let mockPhase3Execute: jest.MockedFunction<(input: Input) => Promise<Output>>;
-    let mockEndFunction: jest.MockedFunction<(output: Output) => void>;
+    let mockPhase1Execute: ReturnType<typeof vi.fn>;
+    let mockPhase2Execute: ReturnType<typeof vi.fn>;
+    let mockPhase3Execute: ReturnType<typeof vi.fn>;
+    let mockEndFunction: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
-        mockPhase1Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase1 processed ${input.data}` }));
-        mockPhase2Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase2 processed ${input.data}` }));
-        mockPhase3Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase3 processed ${input.data}` }));
-        mockEndFunction = jest.fn();
+        mockPhase1Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase1 processed ${input.data}` }));
+        mockPhase2Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase2 processed ${input.data}` }));
+        mockPhase3Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase3 processed ${input.data}` }));
+        mockEndFunction = vi.fn();
 
         const phase1: Phase = { name: 'Phase 1', execute: mockPhase1Execute };
         const phase2: Phase = { name: 'Phase 2', execute: mockPhase2Execute };
@@ -89,11 +89,11 @@ describe('executeProcess', () => {
         const modifiedContext1 = { data: 'modified_by_t1', common: 'shared', t1_prop: true };
         const modifiedContext2 = { data: 'modified_by_t2', common: 'shared', t1_prop: true, t2_prop: true };
 
-        const transform1 = jest.fn((output: TestOutput, context: Context): Promise<[TestInput, Context]> => {
+        const transform1 = vi.fn((output: TestOutput, context: Context): Promise<[TestInput, Context]> => {
             expect(context).toEqual(initialContext); // Expect initial context
             return Promise.resolve([{ data: `t1_out ${output.data}` }, modifiedContext1]);
         });
-        const transform2 = jest.fn((output: TestOutput, context: Context): Promise<[TestInput, Context]> => {
+        const transform2 = vi.fn((output: TestOutput, context: Context): Promise<[TestInput, Context]> => {
             expect(context).toEqual(modifiedContext1); // Expect context from transform1
             return Promise.resolve([{ data: `t2_out ${output.data}` }, modifiedContext2]);
         });
@@ -125,13 +125,13 @@ describe('executeProcess', () => {
 
     test('should handle error in transform function', async () => {
         const transformError = new Error('Transform failed');
-        const transformFn = jest.fn((output: TestOutput, context: Context): Promise<[TestInput, Context]> => { throw transformError; });
+        const transformFn = vi.fn((output: TestOutput, context: Context): Promise<[TestInput, Context]> => { throw transformError; });
 
         const toP2Connection: Connection = createConnection('conn1', 'p2', { transform: transformFn });
         baseProcess.phases.p1.next = [toP2Connection];
 
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => { });
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
 
         const initialInput: TestInput = { data: 'start' };
         const beginning: Beginning<Input, Context> = createBeginning('p1', 'p1');
@@ -155,7 +155,7 @@ describe('executeProcess', () => {
 
 
     test('should handle branching and return results from all explicit end phases', async () => {
-        const mockPhase4Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase4 processed ${input.data}` }));
+        const mockPhase4Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase4 processed ${input.data}` }));
         const phase4: Phase = { name: 'Phase 4', execute: mockPhase4Execute };
 
         const toP2Connection: Connection = createConnection('conn1', 'p2');
@@ -190,9 +190,9 @@ describe('executeProcess', () => {
         // Modify baseProcess so no phases are marked isEndPhase = true
         // p1 -> p2 (leaf)
         // p1 -> p3 (leaf)
-        const mockP1 = jest.fn(async (input: TestInput) => ({ data: `p1 out ${input.data}` }));
-        const mockP2 = jest.fn(async (input: TestInput) => ({ data: `p2 out ${input.data}` }));
-        const mockP3 = jest.fn(async (input: TestInput) => ({ data: `p3 out ${input.data}` }));
+        const mockP1 = vi.fn(async (input: TestInput) => ({ data: `p1 out ${input.data}` }));
+        const mockP2 = vi.fn(async (input: TestInput) => ({ data: `p2 out ${input.data}` }));
+        const mockP3 = vi.fn(async (input: TestInput) => ({ data: `p3 out ${input.data}` }));
 
         const toNP2Connection: Connection = createConnection('conn1', 'n_p2');
         const toNP3Connection: Connection = createConnection('conn2', 'n_p3');
@@ -254,10 +254,10 @@ describe('executeProcess', () => {
 
     test('should warn if an explicit end phase did not execute', async () => {
         // p1 -> p2 (executes), p3 (unreachable, marked as end)
-        const mockP1 = jest.fn(async (input: TestInput) => ({ data: `p1 out ${input.data}` }));
-        const mockP2 = jest.fn(async (input: TestInput) => ({ data: `p2 out ${input.data}` }));
-        const mockP3 = jest.fn(async (input: TestInput) => ({ data: `p3 out ${input.data}` }));
-        const mockP4 = jest.fn(async (input: TestInput) => ({ data: `p4 out ${input.data}` }));
+        const mockP1 = vi.fn(async (input: TestInput) => ({ data: `p1 out ${input.data}` }));
+        const mockP2 = vi.fn(async (input: TestInput) => ({ data: `p2 out ${input.data}` }));
+        const mockP3 = vi.fn(async (input: TestInput) => ({ data: `p3 out ${input.data}` }));
+        const mockP4 = vi.fn(async (input: TestInput) => ({ data: `p4 out ${input.data}` }));
 
         const uP1Phase: Phase = createPhase('uP1', { execute: mockP1 });
         const uP2Phase: Phase = createPhase('uP2', { execute: mockP2 });
@@ -274,7 +274,7 @@ describe('executeProcess', () => {
                 u_p4: createPhaseNode('u_p4', uP4Phase), // Unreachable
             },
         };
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => { });
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
         const initialInput: TestInput = { data: 'unreachable' };
         const beginning: Beginning<Input, Context> = createBeginning('u_p1', 'u_p1');
         const [results, phaseResults, context]: [ProcessResults, PhaseResults, Context] = await executeProcess(processWithUnreachableEnd, beginning, { input: initialInput });
@@ -288,7 +288,7 @@ describe('executeProcess', () => {
     });
 
     test('should correctly handle a phase that leads to a Termination node', async () => {
-        const mockTerminateFn = jest.fn((output: TestOutput, context: Context): Promise<TestOutput> => {
+        const mockTerminateFn = vi.fn((output: TestOutput, context: Context): Promise<TestOutput> => {
             // Optional: can return a modified output or void
             return Promise.resolve({ ...output, terminated: true });
         });
@@ -318,7 +318,7 @@ describe('executeProcess', () => {
 
     test('should handle error thrown by a phase during its execution', async () => {
         const executionError = new Error('Phase execution failed');
-        const mockErrorPhaseExecute = jest.fn(async (input: TestInput): Promise<TestOutput> => {
+        const mockErrorPhaseExecute = vi.fn(async (input: TestInput): Promise<TestOutput> => {
             throw executionError;
         });
         const errorPhase: Phase = { name: 'Error Phase', execute: mockErrorPhaseExecute };
@@ -333,7 +333,7 @@ describe('executeProcess', () => {
             },
         };
 
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
         const initialInput: TestInput = { data: 'error test' };
         const beginning: Beginning<Input, Context> = createBeginning('pError', 'pError');
@@ -367,7 +367,7 @@ describe('executeProcess', () => {
             },
         };
 
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
         const initialInput: TestInput = { data: 'non existent target' };
         const beginning: Beginning<Input, Context> = createBeginning('p1', 'p1');
         // Expect the process execution to throw an error due to invalid definition
@@ -389,15 +389,15 @@ describe('executeProcess', () => {
     });
 
     test('should call prepare and process and fire prepared and processed events', async () => {
-        const prepare = jest.fn(async (input: TestInput, context: Context): Promise<[TestInput, Context]> => [
+        const prepare = vi.fn(async (input: TestInput, context: Context): Promise<[TestInput, Context]> => [
             { data: 'prepared ' + input.data },
             { ...context, prepared: true }
         ]);
-        const process = jest.fn(async (output: TestOutput, context: Context): Promise<[TestOutput, Context]> => [
+        const process = vi.fn(async (output: TestOutput, context: Context): Promise<[TestOutput, Context]> => [
             { data: 'processed ' + output.data },
             { ...context, processed: true }
         ]);
-        const phaseExecute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: 'executed ' + input.data }));
+        const phaseExecute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: 'executed ' + input.data }));
         const phase: Phase = { name: 'PhaseWithPrepareProcess', execute: phaseExecute };
         const phaseNode: PhaseNode = createPhaseNode('p1', phase, { prepare, process });
         const processDef: Process = createProcess('Test Prepare/Process Events', {
@@ -439,19 +439,19 @@ describe('executeProcess', () => {
 // New describe block for Decision element tests
 describe('executeProcess with Decision elements', () => {
     let baseProcess: Process;
-    let mockPhase1Execute: jest.MockedFunction<(input: TestInput) => Promise<TestOutput>>;
-    let mockPhase2Execute: jest.MockedFunction<(input: TestInput) => Promise<TestOutput>>;
-    let mockPhase3Execute: jest.MockedFunction<(input: TestInput) => Promise<TestOutput>>;
-    let mockTerminateFn: jest.MockedFunction<(output: TestOutput, context: Context) => TestOutput>;
-    let decisionLogic: jest.MockedFunction<(output: TestOutput, context: Context) => Termination<TestOutput, Context> | Connection<TestOutput, Context>[]>;
+    let mockPhase1Execute: ReturnType<typeof vi.fn>;
+    let mockPhase2Execute: ReturnType<typeof vi.fn>;
+    let mockPhase3Execute: ReturnType<typeof vi.fn>;
+    let mockTerminateFn: ReturnType<typeof vi.fn>;
+    let decisionLogic: ReturnType<typeof vi.fn>;
 
 
     beforeEach(() => {
-        mockPhase1Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase1 processed ${input.data}` }));
-        mockPhase2Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase2 processed ${input.data}` }));
-        mockPhase3Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase3 processed ${input.data}` }));
-        mockTerminateFn = jest.fn(async (output: TestOutput, context: Context): Promise<TestOutput> => ({ ...output, terminated: true, decisionTermination: true }));
-        decisionLogic = jest.fn();
+        mockPhase1Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase1 processed ${input.data}` }));
+        mockPhase2Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase2 processed ${input.data}` }));
+        mockPhase3Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase3 processed ${input.data}` }));
+        mockTerminateFn = vi.fn(async (output: TestOutput, context: Context): Promise<TestOutput> => ({ ...output, terminated: true, decisionTermination: true }));
+        decisionLogic = vi.fn();
 
 
         const phase1: Phase = { name: 'Phase 1', execute: mockPhase1Execute };
@@ -470,7 +470,7 @@ describe('executeProcess with Decision elements', () => {
 
     test('should execute path determined by a Decision leading to a single Connection', async () => {
         const toP2Connection: Connection = createConnection('conn1', 'p2');
-        const decisionLogic = jest.fn(async (output: TestOutput, context: Context) => {
+        const decisionLogic = vi.fn(async (output: TestOutput, context: Context) => {
             return [toP2Connection];
         });
 
@@ -491,7 +491,7 @@ describe('executeProcess with Decision elements', () => {
     test('should handle multiple connections from a Decision (branching)', async () => {
         const toP2Connection: Connection = createConnection('conn1', 'p2');
         const toP3Connection: Connection = createConnection('conn2', 'p3');
-        const decisionLogic = jest.fn(async (output: TestOutput, context: Context) => {
+        const decisionLogic = vi.fn(async (output: TestOutput, context: Context) => {
             return [
                 toP2Connection,
                 toP3Connection
@@ -514,9 +514,9 @@ describe('executeProcess with Decision elements', () => {
     });
 
     test('should use transform function from a Connection returned by a Decision', async () => {
-        const transformFn = jest.fn(async (output: TestOutput, context: Context): Promise<[TestInput, Context]> => ([{ data: `transformed by decision ${output.data}` }, context]));
+        const transformFn = vi.fn(async (output: TestOutput, context: Context): Promise<[TestInput, Context]> => ([{ data: `transformed by decision ${output.data}` }, context]));
         const toP2Connection: Connection = createConnection('conn1', 'p2', { transform: transformFn });
-        const decisionLogic = jest.fn(async (output: TestOutput, context: Context) => {
+        const decisionLogic = vi.fn(async (output: TestOutput, context: Context) => {
             return [toP2Connection];
         });
         const decision: Decision<TestOutput, Context> = createDecision('dTransform', decisionLogic);
@@ -537,13 +537,13 @@ describe('executeProcess with Decision elements', () => {
 
     test('should handle an error thrown by the decide function of a Decision', async () => {
         const decisionError = new Error('Decision logic failed');
-        const decisionLogic = jest.fn(async (output: TestOutput, context: Context) => {
+        const decisionLogic = vi.fn(async (output: TestOutput, context: Context) => {
             throw decisionError;
         });
         const decision: Decision<TestOutput, Context> = createDecision('dError', decisionLogic);
         baseProcess.phases.p1.next = [decision];
 
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
         const initialInput: TestInput = { data: 'decision error test' };
         const beginning: Beginning<Input, Context> = createBeginning('p1', 'p1');
@@ -563,7 +563,7 @@ describe('executeProcess with Decision elements', () => {
     });
 
     test('should handle a Decision that returns an empty array of Connections (implicit termination of path)', async () => {
-        const decisionLogic = jest.fn(async (output: TestOutput, context: Context) => {
+        const decisionLogic = vi.fn(async (output: TestOutput, context: Context) => {
             return []; // No further steps from this decision
         });
         const decision: Decision<TestOutput, Context> = createDecision('dEmpty', decisionLogic);
@@ -590,10 +590,10 @@ describe('executeProcess with Decision elements', () => {
         const toP2Connection: Connection = createConnection('conn1', 'p2');
         const toP3Connection: Connection = createConnection('conn2', 'p3');
 
-        const decisionLogic1 = jest.fn(async (output: TestOutput, context: Context): Promise<Connection<TestOutput, Context>[]> => {
+        const decisionLogic1 = vi.fn(async (output: TestOutput, context: Context): Promise<Connection<TestOutput, Context>[]> => {
             return [toP2Connection]; // Decision 1 targets p2
         });
-        const decisionLogic2 = jest.fn(async (output: TestOutput, context: Context): Promise<Connection<TestOutput, Context>[]> => {
+        const decisionLogic2 = vi.fn(async (output: TestOutput, context: Context): Promise<Connection<TestOutput, Context>[]> => {
             return [toP3Connection]; // Decision 2 targets p3
         });
 
@@ -619,11 +619,11 @@ describe('executeProcess with Decision elements', () => {
 
     test('first Decision error does not stop subsequent Decisions in the same PhaseNode from executing', async () => {
         const decisionError = new Error('First decision failed');
-        const decisionLogicError = jest.fn(async (output: TestOutput, context: Context) => {
+        const decisionLogicError = vi.fn(async (output: TestOutput, context: Context) => {
             throw decisionError;
         });
         const toP3Connection: Connection = createConnection('conn2', 'p3');
-        const decisionLogicSuccess = jest.fn(async (output: TestOutput, context: Context) => {
+        const decisionLogicSuccess = vi.fn(async (output: TestOutput, context: Context) => {
             return [toP3Connection];
         });
 
@@ -634,7 +634,7 @@ describe('executeProcess with Decision elements', () => {
         delete baseProcess.phases.p2;
 
 
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
         const initialInput: TestInput = { data: 'multi decision with error' };
         const beginning: Beginning<Input, Context> = createBeginning('p1', 'p1');
         const [results, phaseResults, processContext] = await executeProcess(baseProcess, beginning, { input: initialInput });
@@ -658,14 +658,14 @@ describe('executeProcess with Decision elements', () => {
 // New describe block for specific _handleNextStep scenarios and direct next properties
 describe('executeProcess with specific PhaseNode.next configurations', () => {
     let baseProcess: Process;
-    let mockPhase1Execute: jest.MockedFunction<(input: TestInput) => Promise<TestOutput>>;
-    let mockPhase2Execute: jest.MockedFunction<(input: TestInput) => Promise<TestOutput>>;
-    let mockTerminateFn: jest.MockedFunction<(output: TestOutput, context: Context) => Promise<TestOutput>>;
+    let mockPhase1Execute: ReturnType<typeof vi.fn>;
+    let mockPhase2Execute: ReturnType<typeof vi.fn>;
+    let mockTerminateFn: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
-        mockPhase1Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase1 processed ${input.data}` }));
-        mockPhase2Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase2 processed ${input.data}` }));
-        mockTerminateFn = jest.fn(async (output: TestOutput, context: Context): Promise<TestOutput> => output);
+        mockPhase1Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase1 processed ${input.data}` }));
+        mockPhase2Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase2 processed ${input.data}` }));
+        mockTerminateFn = vi.fn(async (output: TestOutput, context: Context): Promise<TestOutput> => output);
 
         const phase1: Phase = createPhase('Phase 1', { execute: mockPhase1Execute });
         const phase2: Phase = createPhase('Phase 2', { execute: mockPhase2Execute });

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import { VitePluginNode } from 'vite-plugin-node';
 import replace from '@rollup/plugin-replace';
 import { execSync } from 'child_process';
@@ -94,4 +94,22 @@ export default defineConfig({
         minify: false,
         sourcemap: true,
     },
-}); 
+    test: {
+        globals: true,
+        environment: 'node',
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'lcov', 'html'],
+            include: ['src/**/*.ts'],
+            exclude: ['**/*.test.ts', '**/*.spec.ts'],
+            thresholds: {
+                branches: 86,
+                functions: 68,
+                lines: 89,
+                statements: 89,
+            },
+        },
+        include: ['tests/**/*.test.ts'],
+        testTimeout: 30000,
+    },
+});

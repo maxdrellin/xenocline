@@ -1,4 +1,4 @@
-import { describe, it, expect, jest } from '@jest/globals';
+import { vi } from 'vitest';
 import {
     createTransitionEvent,
     createConnectionEvent,
@@ -13,9 +13,9 @@ import {
 import type { Connection, Decision, Termination, Beginning, Transition } from '../../src/xenocline';
 
 // Mock the date to ensure consistent test results
-jest.useFakeTimers();
+vi.useFakeTimers();
 const mockDate = new Date(2024, 0, 1, 12, 0, 0); // Jan 1, 2024, 12:00:00
-jest.setSystemTime(mockDate);
+vi.setSystemTime(mockDate);
 
 describe('Transition Events', () => {
     const mockSourceId = 'test-source';
@@ -156,5 +156,5 @@ describe('Transition Events', () => {
 
 // Restore timers after all tests
 afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
 });

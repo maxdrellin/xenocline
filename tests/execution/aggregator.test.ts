@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { executeProcess } from '../../src/execution/process';
 import { Phase } from '../../src/phase';
 import { PhaseNode } from '../../src/node/phasenode';
@@ -26,9 +26,9 @@ interface TestOutput extends Output {
 // New describe block for AggregatorNode tests
 describe('executeProcess with AggregatorNode', () => {
     let baseProcess: Process;
-    let mockPhase1Execute: jest.MockedFunction<(input: TestInput) => Promise<TestOutput>>;
-    let mockPhase2Execute: jest.MockedFunction<(input: TestInput) => Promise<TestOutput>>;
-    let mockAggregatorExecute: jest.MockedFunction<(input: Input, context: Context) => Promise<AggregationResult<TestOutput>>>;
+    let mockPhase1Execute: ReturnType<typeof vi.fn>;
+    let mockPhase2Execute: ReturnType<typeof vi.fn>;
+    let mockAggregatorExecute: ReturnType<typeof vi.fn>;
     let mockAggregator: Aggregator;
 
     interface AggregationTestInput extends Input {
@@ -48,9 +48,9 @@ describe('executeProcess with AggregatorNode', () => {
 
 
     beforeEach(() => {
-        mockPhase1Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase1 processed ${input.data}` }));
-        mockPhase2Execute = jest.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase2 processed ${input.data}` }));
-        mockAggregatorExecute = jest.fn(async (input: AggregationTestInput, context: Context): Promise<AggregationResult<AggregationTestOutput>> => {
+        mockPhase1Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase1 processed ${input.data}` }));
+        mockPhase2Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase2 processed ${input.data}` }));
+        mockAggregatorExecute = vi.fn(async (input: AggregationTestInput, context: Context): Promise<AggregationResult<AggregationTestOutput>> => {
             if (input.triggerReady) {
                 return { status: 'Ready', output: { summary: `aggregated ${input.items?.join(', ')}` } };
             }
@@ -92,7 +92,7 @@ describe('executeProcess with AggregatorNode', () => {
 
     test('should execute process with AggregatorNode returning Ready', async () => {
         const initialInput: TestInput = { data: 'start' };
-        // The mockAggregatorExecute is set up in beforeEach to return Ready 
+        // The mockAggregatorExecute is set up in beforeEach to return Ready
         // if input.triggerReady is true. The input to the aggregator comes from p1.
         // So we need to ensure p1 output sets this, or modify the aggregator input directly.
         // For simplicity in this test, let's assume the input to the aggregator node will have `triggerReady: true`.
