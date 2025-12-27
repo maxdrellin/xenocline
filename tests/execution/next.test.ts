@@ -7,12 +7,12 @@ import type { Decision, DecideFunction } from '../../src/transition/decision';
 import type { Termination } from '../../src/transition/termination';
 import type { Phase, PhaseNode } from '../../src/xenocline';
 
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 
-jest.mock('../../src/execution/node');
-jest.mock('../../src/execution/event');
-jest.mock('../../src/event');
-jest.mock('../../src/execution/aggregator');
+vi.mock('../../src/execution/node');
+vi.mock('../../src/execution/event');
+vi.mock('../../src/event');
+vi.mock('../../src/execution/aggregator');
 
 import { executeNode } from '../../src/execution/node';
 import { dispatchEvent } from '../../src/execution/event';
@@ -36,15 +36,15 @@ describe('handleNextStep', () => {
     let mockPhaseNode: PhaseNode;
     let mockPhase: Phase;
 
-    const mockExecuteNode = executeNode as jest.MockedFunction<typeof executeNode>;
-    const mockDispatchEvent = dispatchEvent as jest.MockedFunction<typeof dispatchEvent>;
-    const mockCreateDecisionEvent = createDecisionEvent as jest.MockedFunction<typeof createDecisionEvent>;
-    const mockCreateConnectionEvent = createConnectionEvent as jest.MockedFunction<typeof createConnectionEvent>;
-    const mockCreateTerminationEvent = createTerminationEvent as jest.MockedFunction<typeof createTerminationEvent>;
-    const mockCreateAggregatorState = createAggregatorState as jest.MockedFunction<typeof createAggregatorState>;
+    const mockExecuteNode = executeNode as ReturnType<typeof vi.fn>;
+    const mockDispatchEvent = dispatchEvent as ReturnType<typeof vi.fn>;
+    const mockCreateDecisionEvent = createDecisionEvent as ReturnType<typeof vi.fn>;
+    const mockCreateConnectionEvent = createConnectionEvent as ReturnType<typeof vi.fn>;
+    const mockCreateTerminationEvent = createTerminationEvent as ReturnType<typeof vi.fn>;
+    const mockCreateAggregatorState = createAggregatorState as ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         mockCreateDecisionEvent.mockImplementation((nodeId, eventName, decision, data) => ({
             type: 'DecisionEvent',
@@ -76,17 +76,17 @@ describe('handleNextStep', () => {
 
         mockCreateAggregatorState.mockReturnValue({
             aggregatorDeferreds: new Map(),
-            registerPendingAggregator: jest.fn(),
-            resolvePendingAggregator: jest.fn(),
-            getPendingAggregator: jest.fn(),
-            pendingAggregatorIds: jest.fn(),
+            registerPendingAggregator: vi.fn(),
+            resolvePendingAggregator: vi.fn(),
+            getPendingAggregator: vi.fn(),
+            pendingAggregatorIds: vi.fn(),
         } as any);
 
         mockContext = {};
 
         mockPhase = createPhase('test-phase', {
             // @ts-ignore
-            execute: jest.fn().mockResolvedValue({ data: 'test-phase-output' })
+            execute: vi.fn().mockResolvedValue({ data: 'test-phase-output' })
         } as any);
 
         mockPhaseNode = createPhaseNode('targetNode1', mockPhase);
@@ -111,7 +111,7 @@ describe('handleNextStep', () => {
         it('should handle a successful decision path', async () => {
             const mockDecision: Decision<Output, Context> = {
                 id: 'decision1',
-                decide: jest.fn<DecideFunction<Output, Context>>().mockResolvedValue([]),
+                decide: vi.fn<DecideFunction<Output, Context>>().mockResolvedValue([]),
                 type: 'decision',
             };
 
@@ -127,11 +127,11 @@ describe('handleNextStep', () => {
             const decisionError = new Error('Decision failed');
             const mockDecision: Decision<Output, Context> = {
                 id: 'decision1',
-                decide: jest.fn<DecideFunction<Output, Context>>().mockRejectedValue(decisionError),
+                decide: vi.fn<DecideFunction<Output, Context>>().mockRejectedValue(decisionError),
                 type: 'decision',
             };
             // @ts-ignore
-            global.console = { error: jest.fn() }; // Mock console.error
+            global.console = { error: vi.fn() }; // Mock console.error
 
             await handleNextStep(mockOutput, 'node1', [mockDecision], mockState);
 
@@ -151,7 +151,7 @@ describe('handleNextStep', () => {
         it('should handle a connection with a successful transform', async () => {
             const transformedInput = { data: 'transformed input' } as Input;
             const transformedContext = { ...mockContext, transformed: true } as Context;
-            const mockTransform = jest.fn().mockImplementation(() => {
+            const mockTransform = vi.fn().mockImplementation(() => {
                 return Promise.resolve([transformedInput, transformedContext]);
             });
 
@@ -198,11 +198,11 @@ describe('handleNextStep', () => {
                 id: 'conn1',
                 targetNodeId: 'targetNode1',
                 // @ts-ignore
-                transform: jest.fn().mockRejectedValue(transformError),
+                transform: vi.fn().mockRejectedValue(transformError),
                 type: 'connection',
             };
             // @ts-ignore
-            global.console = { error: jest.fn() }; // Mock console.error
+            global.console = { error: vi.fn() }; // Mock console.error
 
             await handleNextStep(mockOutput, 'node1', [mockConnection], mockState);
 
@@ -221,7 +221,7 @@ describe('handleNextStep', () => {
 
     describe('Termination Handling', () => {
         it('should handle termination with a terminate function', async () => {
-            const mockTerminateFn = jest.fn();
+            const mockTerminateFn = vi.fn();
             const mockTermination: Termination<Output, Context> = {
                 id: 'term1',
                 // @ts-ignore

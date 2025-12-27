@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, createPhase, createPhaseNode, createConnection, createTermination, createProcess, Beginning, createBeginning, Event } from '../src/xenocline';
 import { createEventHandler } from '../src/event';
 
@@ -115,7 +115,7 @@ describe('example1', () => {
 
     test('runExample', async () => {
 
-        const consoleSpy = jest.spyOn(console, 'log');
+        const consoleSpy = vi.spyOn(console, 'log');
 
         // Run the example
         await runExample();

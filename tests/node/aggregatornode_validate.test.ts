@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { AggregatorNode, validateAggregatorNode } from '../../src/node/aggregatornode';
 import { Aggregator } from '../../src/aggregator';
 import { Termination } from '../../src/transition/termination';

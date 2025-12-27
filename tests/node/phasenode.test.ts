@@ -7,7 +7,7 @@ import { isDecision, Decision, createDecision } from '../../src/transition/decis
 import { Input } from '../../src/input';
 import { Output } from '../../src/output';
 import { Context } from '../../src/context';
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 import { Next } from 'transition/next';
 
 interface MockInput extends Input { data: string; }
@@ -22,7 +22,7 @@ describe('PhaseNode', () => {
         type: 'connection',
         targetNodeId: 'nextNodeId',
         // @ts-ignore
-        transform: jest.fn().mockImplementation((output: MockOutput, context: MockContext) => [{ data: output.result }, context]),
+        transform: vi.fn().mockImplementation((output: MockOutput, context: MockContext) => [{ data: output.result }, context]),
     };
 
     const mockTermination: Termination<MockOutput, MockContext> = createTermination('term1', { terminate: async (output, context) => ({ result: output.result + ' terminated' }) });
@@ -314,9 +314,9 @@ describe('createPhaseNode', () => {
     const mockPhase: Phase<MockInput, MockOutput> = createPhase('phase1', { execute: async (input) => ({ result: input.data + ' processed' }) });
 
     it('should create a PhaseNode with prepare and process methods', async () => {
-        const prepare = jest.fn<import('../../src/node/phasenode').PrepareMethod<MockInput, MockContext>>()
+        const prepare = vi.fn<import('../../src/node/phasenode').PrepareMethod<MockInput, MockContext>>()
             .mockImplementation(async (input, context) => [{ data: 'prepared' }, { userId: 'user1' }]);
-        const process = jest.fn<import('../../src/node/phasenode').ProcessMethod<MockOutput, MockContext>>()
+        const process = vi.fn<import('../../src/node/phasenode').ProcessMethod<MockOutput, MockContext>>()
             .mockImplementation(async (output, context) => [{ result: 'processed' }, { userId: 'user2' }]);
 
         // Import here to avoid circular dependency issues
