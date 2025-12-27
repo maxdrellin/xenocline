@@ -123,10 +123,27 @@ export async function executeProcess<I extends Input = Input, O extends Output =
         console.error("[EXECUTE_PROCESS_CRITICAL_ERROR]", { processName: processInstance.name, error: errorMessage, collectedErrors: state.errors });
     }
 
+    // Check for and reject any pending aggregators that never completed
     if (state.aggregatorDeferreds && state.aggregatorDeferreds.size > 0) {
         const pendingNodeIds = state.pendingAggregatorIds ? state.pendingAggregatorIds().join(', ') : 'unknown';
         // eslint-disable-next-line no-console
-        console.warn(`[EXECUTE_PROCESS_PENDING_AGGREGATORS] Process execution may have pending aggregators: ${pendingNodeIds}.`, { processName: processInstance.name, pendingNodeIds });
+        console.warn(`[EXECUTE_PROCESS_PENDING_AGGREGATORS] Process execution completed with pending aggregators: ${pendingNodeIds}. These will be rejected.`, { processName: processInstance.name, pendingNodeIds });
+
+        // Reject all pending aggregators to prevent hanging promises
+        for (const nodeId of state.aggregatorDeferreds.keys()) {
+            const deferred = state.aggregatorDeferreds.get(nodeId);
+            if (deferred) {
+                const error = new Error(`Aggregator node '${nodeId}' did not receive all expected inputs before process completion. This may indicate a process design issue where not all paths leading to the aggregator were executed.`);
+                deferred.reject(error);
+                state.errors.push({
+                    nodeId,
+                    message: error.message,
+                    details: { reason: 'incomplete_aggregation' }
+                });
+            }
+        }
+        // Clear the map after rejecting all
+        state.aggregatorDeferreds.clear();
     }
 
     dispatchEvent(

@@ -557,7 +557,12 @@ describe('executeProcess with Decision elements', () => {
 
         expect(results).toEqual({}); // No end results as decision failed
         expect(phaseResults['p1']).toEqual(p1Output); // p1 executed
-        expect(consoleErrorSpy).toHaveBeenCalledWith('[_HANDLE_NEXT_STEP_DECISION_ERROR] Error in decision dError for node p1:', expect.objectContaining({ decisionError: decisionError, decisionId: 'dError', nodeId: 'p1' }));
+        expect(consoleErrorSpy).toHaveBeenCalledWith('[_HANDLE_NEXT_STEP_DECISION_ERROR]', expect.objectContaining({
+            decisionError: decisionError,
+            decisionId: 'dError',
+            sourceNodeId: 'p1',
+            error: expect.stringContaining("Decision error on 'dError' for node 'p1'")
+        }));
 
         consoleErrorSpy.mockRestore();
     });
@@ -579,9 +584,10 @@ describe('executeProcess with Decision elements', () => {
         expect(mockPhase2Execute).not.toHaveBeenCalled();
         expect(mockPhase3Execute).not.toHaveBeenCalled();
 
-        // The result of the phase before the decision that led to an empty array is stored with the decision's ID.
-        // This behavior is based on how _handleNextStep treats an empty Connection[] or undefined `next`.
-        expect(results['dEmpty']).toEqual(p1Output);
+        // The result of the phase before the decision that led to an empty array is stored with a generated implicit termination ID.
+        // This behavior is based on how _handleNextStep treats an empty Connection[] as an implicit termination.
+        // The key format is: ${nodeId}_implicit_end where nodeId is the decision's ID
+        expect(results['dEmpty_implicit_end']).toEqual(p1Output);
         expect(phaseResults['p1']).toEqual(p1Output);
     });
 
@@ -649,7 +655,12 @@ describe('executeProcess with Decision elements', () => {
 
         expect(results['p3']).toEqual({ data: 'phase3 processed phase1 processed multi decision with error' });
         expect(phaseResults['p1']).toEqual(p1Output);
-        expect(consoleErrorSpy).toHaveBeenCalledWith('[_HANDLE_NEXT_STEP_DECISION_ERROR] Error in decision dErrFirst for node p1:', expect.objectContaining({ decisionError: decisionError, decisionId: 'dErrFirst', nodeId: 'p1' }));
+        expect(consoleErrorSpy).toHaveBeenCalledWith('[_HANDLE_NEXT_STEP_DECISION_ERROR]', expect.objectContaining({
+            decisionError: decisionError,
+            decisionId: 'dErrFirst',
+            sourceNodeId: 'p1',
+            error: expect.stringContaining("Decision error on 'dErrFirst' for node 'p1'")
+        }));
 
         consoleErrorSpy.mockRestore();
     });

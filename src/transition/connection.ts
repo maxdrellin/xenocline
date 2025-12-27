@@ -4,6 +4,20 @@ import { Output } from '../output';
 import { createTransition, isTransition, Transition, validateTransition } from './transition';
 import { clean } from '../util/general';
 
+/**
+ * Transform function for connections between nodes.
+ * Takes the output from the source node and the current context,
+ * and returns the input for the target node along with an updated context.
+ *
+ * CONCURRENCY WARNING: In parallel execution scenarios (fan-out from one node
+ * to multiple target nodes), each connection's transform receives the same
+ * source context. Context mutations from one connection may be overwritten
+ * by another. The last transform to complete will have its context changes
+ * reflected in the process state.
+ *
+ * Best practice: Minimize context mutations in transforms, or use unique
+ * context keys per connection path to avoid conflicts.
+ */
 export type TransformFunction<O extends Output = Output, C extends Context = Context> = (output: O, context: C) => Promise<[Input, C]>;
 
 // MODIFIED: Connection to extend Transition
@@ -13,9 +27,13 @@ export interface Connection<
 > extends Transition {
     type: 'connection';
     targetNodeId: string; // ID of the target PhaseNode in the process's phases collection
-    // Optional function to transform the output of the current phase
-    // to the input of the target phase.
-    // If not provided, the output is assumed to be compatible directly.
+    /**
+     * Optional function to transform the output of the current phase
+     * to the input of the target phase.
+     * If not provided, the output is assumed to be compatible directly.
+     *
+     * See TransformFunction documentation for concurrency considerations.
+     */
     transform: TransformFunction<O, C>;
 }
 
@@ -23,8 +41,19 @@ export interface ConnectionOptions<O extends Output = Output, C extends Context 
     transform: TransformFunction<O, C>;
 }
 
+/**
+ * Default connection options with a pass-through transform.
+ * WARNING: The default transform uses a type assertion (output as Input) which provides
+ * no runtime validation. Users should provide their own transform function if the output
+ * type does not structurally match the expected input type of the target node.
+ * The type assertion is used here to maintain backward compatibility and allow simple
+ * pass-through scenarios where Output and Input have compatible shapes.
+ */
 export const DEFAULT_CONNECTION_OPTIONS: ConnectionOptions = {
     transform: async (output, context) => {
+        // Type assertion used here - Output and Input are both extensible objects
+        // so this is safe for pass-through scenarios, but users should validate
+        // or transform data if types don't align
         return [output as Input, context];
     }
 };

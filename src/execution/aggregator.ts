@@ -1,4 +1,4 @@
-import { Context } from 'vm';
+import { Context } from '../context';
 import { createAggregatorEvent, EventState } from '../event';
 import { Input } from '../input';
 import { AggregatorNode } from '../node/aggregatornode';

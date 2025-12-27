@@ -138,9 +138,19 @@ export async function executeNode(
                                 await handleNextStep(output, decision.id, decisionOutcome, state);
                                 dispatchEvent(state.eventState, createDecisionEvent(nodeId, 'end', decision), state.context);
                             } catch (decisionError: any) {
+                                const errorMessage = `Decision error on '${decision.id}' for node '${nodeId}': ${decisionError.message}`;
                                 // eslint-disable-next-line no-console
-                                console.error(`[_HANDLE_NEXT_STEP_DECISION_ERROR] Error in decision ${decision.id} for node ${nodeId}:`, { decisionError, nodeId, decisionId: decision.id });
-                                state.errors.push({ nodeId: decision.id, message: decisionError.message });
+                                console.error(`[_HANDLE_NEXT_STEP_DECISION_ERROR]`, {
+                                    error: errorMessage,
+                                    decisionError,
+                                    decisionId: decision.id,
+                                    sourceNodeId: nodeId
+                                });
+                                state.errors.push({
+                                    nodeId: decision.id,
+                                    message: errorMessage,
+                                    details: { sourceNodeId: nodeId, originalError: decisionError.message }
+                                });
                             }
                         })();
                         decisionExecutionPromises.push(decisionPromise);
@@ -174,6 +184,14 @@ export async function executeNode(
             // eslint-disable-next-line no-console
             console.error(`[EXECUTE_NODE_RECURSIVE_IIFE_ERROR] Error executing node ${nodeId}:`, { error, nodeId });
             state.errors.push({ nodeId, message: error.message });
+            // Clean up any pending aggregator deferred on error
+            if (state.aggregatorDeferreds.has(nodeId)) {
+                const deferred = state.aggregatorDeferreds.get(nodeId);
+                if (deferred) {
+                    deferred.reject(error);
+                }
+                state.aggregatorDeferreds.delete(nodeId);
+            }
             throw error;
         } finally {
 

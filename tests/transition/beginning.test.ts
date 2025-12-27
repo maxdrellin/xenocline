@@ -158,7 +158,7 @@ describe('Beginning', () => {
         it('should return error if begin is present but not a function', () => {
             const invalidItem: any = { id: 'b1', type: 'beginning', targetNodeId: 'n1', begin: 'not-a-function' };
             expect(validateBeginning(invalidItem)).toEqual([
-                { coordinates: ['Beginning', 'Termination: b1'], error: 'begin is not a function.' }
+                { coordinates: ['Beginning', 'Beginning: b1'], error: 'begin is not a function.' }
             ]);
         });
 
@@ -170,7 +170,7 @@ describe('Beginning', () => {
             const item = { id: 'b2', type: 'beginning', targetNodeId: 'n2', begin: 'not-func' };
             const errorsForInvalidBeginning = validateBeginning(item, ['Root']);
             expect(errorsForInvalidBeginning.length).toBe(1);
-            expect(errorsForInvalidBeginning[0].coordinates).toEqual(['Root', 'Beginning', 'Termination: b2']);
+            expect(errorsForInvalidBeginning[0].coordinates).toEqual(['Root', 'Beginning', 'Beginning: b2']);
             expect(errorsForInvalidBeginning[0].error).toBe('begin is not a function.');
         });
     });
