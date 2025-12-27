@@ -111,8 +111,8 @@ async function runExample() {
     }
 }
 
-// Run the example
-runExample();
+// Note: runExample() is intentionally NOT called at module level
+// It should only be called within the test context
 
 
 describe('example1', () => {

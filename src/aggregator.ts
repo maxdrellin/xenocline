@@ -11,6 +11,31 @@ export type AggregationResult<U extends Output = Output> =
     | { status: 'Ready'; output: U }
     | { status: 'NotYetReady' };
 
+/**
+ * Aggregation method that processes inputs and returns an aggregation result.
+ *
+ * IMPORTANT: Aggregators should store their state in the context, not in
+ * module-level or closure variables, to ensure proper isolation between
+ * concurrent process executions.
+ *
+ * Pattern:
+ * ```typescript
+ * const aggregator = createAggregator('MyAgg', {
+ *   aggregate: async (input, context) => {
+ *     if (!context.myAggState) {
+ *       context.myAggState = { count: 0, accumulated: 0 };
+ *     }
+ *     const state = context.myAggState;
+ *     state.count++;
+ *     state.accumulated += input.value;
+ *     if (state.count === 2) {
+ *       return { status: 'Ready', output: { result: state.accumulated } };
+ *     }
+ *     return { status: 'NotYetReady' };
+ *   }
+ * });
+ * ```
+ */
 export type AggregateMethod<U extends Output = Output, C extends Context = Context> = (
     input: Input,
     context: C

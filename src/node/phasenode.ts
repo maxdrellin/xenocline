@@ -16,12 +16,30 @@ export interface PhaseNode<
     type: 'phase';
     phase: Phase<I, O>; // The actual phase instance
 
-    // The prepare method is called before the phase is executed.
-    // The input is the input for the phase, and the context is saved to the process context.
+    /**
+     * The prepare method is called before the phase is executed.
+     * It receives the input and current context, and returns both (potentially modified).
+     * The returned context replaces the process context.
+     *
+     * CONCURRENCY WARNING: In processes with parallel execution paths (fan-out),
+     * multiple nodes may execute simultaneously. Each node's prepare method receives
+     * the shared context and can modify it. These modifications happen sequentially
+     * within each node but parallel nodes may overwrite each other's context changes.
+     *
+     * Best practice: Use unique context keys per node/path to avoid conflicts,
+     * or ensure context modifications are idempotent and merge-safe.
+     */
     prepare?: PrepareMethod;
 
-    // The process method is called after the phase is executed, but before the next node is executed.
-    // The output is the input for the next node, and the context is saved to the process context.
+    /**
+     * The process method is called after the phase is executed, but before the next node is executed.
+     * It receives the phase output and current context, and returns both (potentially modified).
+     * The returned context replaces the process context.
+     *
+     * CONCURRENCY WARNING: Same as prepare - parallel execution paths may cause
+     * context mutations to overwrite each other. Design your context updates carefully
+     * when using fan-out patterns.
+     */
     process?: ProcessMethod;
 }
 

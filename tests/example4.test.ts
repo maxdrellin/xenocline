@@ -54,20 +54,33 @@ interface AggregatorStorage {
     pendingValue: number;
 }
 
-const aggregatorStore: AggregatorStorage = {
-    inputCount: 0,
-    pendingValue: 0,
+// Extended Context interface to include aggregator storage
+interface MyContext extends Context {
+    aggregatorStore?: AggregatorStorage;
 }
 
-// Phase 5: Aggregates two numerical inputs (one potentially from a string)
+// Phase 5: Aggregates two numerical inputs using context-based storage
+// This demonstrates the correct pattern: store aggregator state in the process context,
+// not in module-level variables, to avoid race conditions in concurrent executions
 const aggregateSum: Aggregator = createAggregator('AggregateSumPhase', {
-    aggregate: async function (input: Input): Promise<AggregationResult<Output>> {
+    aggregate: async function (input: Input, context: MyContext): Promise<AggregationResult<Output>> {
         console.log(`AggregateSumPhase: Received ${input.value}`);
-        aggregatorStore.inputCount++;
-        aggregatorStore.pendingValue = (input.value as number) + aggregatorStore.pendingValue;
-        if (aggregatorStore.inputCount === 2) {
-            console.log(`AggregateSumPhase: Outputting ${aggregatorStore.pendingValue}`);
-            return { status: 'Ready', output: { value: aggregatorStore.pendingValue } };
+
+        // Initialize aggregator storage in context if not present
+        if (!context.aggregatorStore) {
+            context.aggregatorStore = {
+                inputCount: 0,
+                pendingValue: 0,
+            };
+        }
+
+        const store = context.aggregatorStore;
+        store.inputCount++;
+        store.pendingValue = (input.value as number) + store.pendingValue;
+
+        if (store.inputCount === 2) {
+            console.log(`AggregateSumPhase: Outputting ${store.pendingValue}`);
+            return { status: 'Ready', output: { value: store.pendingValue } };
         }
         console.log(`AggregateSumPhase: NotYetReady`);
         return { status: 'NotYetReady' };
@@ -139,17 +152,15 @@ async function runExample() {
     }
 }
 
-// Run the example
-runExample();
+// Note: runExample() is intentionally NOT called at module level
+// It should only be called within the test context to avoid unhandled promise rejections
+// during test setup
 
 
-describe('example1', () => {
+describe('example4', () => {
 
-    beforeEach(() => {
-        // Reset aggregatorStore before each test in this describe block
-        aggregatorStore.inputCount = 0;
-        aggregatorStore.pendingValue = 0;
-    });
+    // Note: No need for beforeEach to reset state since aggregator storage
+    // is now context-based and isolated per process execution
 
     test('runExample', async () => {
         // Run the example

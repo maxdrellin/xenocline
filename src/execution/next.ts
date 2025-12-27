@@ -45,10 +45,23 @@ export async function handleNextStep(
                     state.context
                 );
             } catch (decisionError: any) {
+                const errorMessage = `Decision error on '${decision.id}' from node '${nodeId}': ${decisionError.message}`;
                 // eslint-disable-next-line no-console
-                console.error(`[_HANDLE_NEXT_STEP_DECISION_ERROR] Error in decision ${decision.id} from node ${nodeId}:`, { decisionError, nodeId, decisionId: decision.id });
-                state.errors.push({ nodeId: decision.id, message: decisionError.message });
-                // Note: 'end' event for this decision path is skipped due to error.
+                console.error(`[_HANDLE_NEXT_STEP_DECISION_ERROR]`, {
+                    error: errorMessage,
+                    decisionError,
+                    decisionId: decision.id,
+                    sourceNodeId: nodeId
+                });
+                state.errors.push({
+                    nodeId: decision.id,
+                    message: errorMessage,
+                    details: { sourceNodeId: nodeId, originalError: decisionError.message }
+                });
+                // Note: Decision errors are logged but do not halt the process.
+                // This allows other parallel decisions to continue executing.
+                // If you need decision errors to halt execution, consider throwing here
+                // or checking state.errors after process completion.
             }
         }
     } else if (Array.isArray(next) && next.length > 0 && next.every(isConnection)) {
@@ -82,10 +95,23 @@ export async function handleNextStep(
 
                     //console.log('[_HANDLE_NEXT_STEP_CONNECTION_TRANSFORM_SUCCESS]', { nodeId, targetNodeId: connection.targetNodeId, nextInput, nextContext });
                 } catch (transformError: any) {
+                    const errorMessage = `Transform error on connection '${connection.id}' from node '${nodeId}' to '${connection.targetNodeId}': ${transformError.message}`;
                     // eslint-disable-next-line no-console
-                    console.error(`[_HANDLE_NEXT_STEP_CONNECTION_TRANSFORM_ERROR] Error in transform for connection from ${nodeId} to ${connection.targetNodeId}:`, { transformError, nodeId, targetNodeId: connection.targetNodeId });
-                    state.errors.push({ nodeId: connection.targetNodeId, message: transformError.message });
-                    // Note: 'end' event for this connection path is skipped due to error in transform
+                    console.error(`[_HANDLE_NEXT_STEP_CONNECTION_TRANSFORM_ERROR]`, {
+                        error: errorMessage,
+                        transformError,
+                        connectionId: connection.id,
+                        sourceNodeId: nodeId,
+                        targetNodeId: connection.targetNodeId
+                    });
+                    // Store error with connection ID for better traceability
+                    state.errors.push({
+                        nodeId: connection.id,
+                        message: errorMessage,
+                        details: { sourceNodeId: nodeId, targetNodeId: connection.targetNodeId, originalError: transformError.message }
+                    });
+                    // Skip this connection path - other parallel connections will still execute
+                    // This allows partial success in fan-out scenarios
                     continue;
                 }
             }
@@ -114,7 +140,7 @@ export async function handleNextStep(
         if (termination.terminate) {
 
             //console.log('[_HANDLE_NEXT_STEP_TERMINATION_CALLING_TERMINATE_FN]', { nodeId, terminationId: termination.id });
-            termination.terminate(nodeOutput, state.context);
+            await termination.terminate(nodeOutput, state.context);
             await dispatchEvent(
                 state.eventState,
                 createTerminationEvent(nodeId, 'terminate', termination, { output: nodeOutput }),
@@ -124,12 +150,16 @@ export async function handleNextStep(
 
         state.results[termination.id] = result;
     } else if (Array.isArray(next) && next.length === 0) {
-        // Empty array, potentially from a Decision that leads to no connections or an empty Connection array.
-        // This could mean an implicit termination for this path or simply no further action from this branch.
-        // If it's considered an end state for the path, store the result.
+        // Empty array from a Decision means no path should be taken from this node.
+        // This is treated as an implicit termination, storing the result with a generated key.
+        // Note: This behavior means a Decision can dynamically terminate a process path.
 
         const result: Output = nodeOutput;
-        state.results[nodeId] = result; // Using nodeId as the key for this implicit termination
+        const implicitTerminationId = `${nodeId}_implicit_end`;
+        state.results[implicitTerminationId] = result;
+
+        // eslint-disable-next-line no-console
+        console.warn(`[_HANDLE_NEXT_STEP_IMPLICIT_TERMINATION] Node ${nodeId} received empty next array, treating as implicit termination with id: ${implicitTerminationId}`);
     } else {
         // If there is no next (e.g. next is undefined or null after a decision), or it's an unhandled type.
         // Consider this an end state and store the result with the nodeId
