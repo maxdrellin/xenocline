@@ -1,9 +1,9 @@
-import { Logger, LogLevel, wrapLogger } from "logger";
+import { Logger, LogLevel, wrapLogger } from "../../logger";
 import { Event } from "../../event/event";
 import { EventHandler } from "../../event/handler";
 import { clean } from "../../util/general";
 import util from "util";
-import { Context } from "context";
+import { Context } from "../../context";
 
 export type EventLogFunction<T extends Event, C extends Context> = (event: T, context: C) => [message: string, ...args: any[]];
 

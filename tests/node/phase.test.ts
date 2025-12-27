@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { executePhase } from '../../src/execution/phase';
 import { PhaseNode } from '../../src/node/phasenode';
 import { Input } from '../../src/input';
@@ -7,10 +8,13 @@ import { ExecutionState } from '../../src/execution/process';
 import { createEventState } from '../../src/execution/event';
 
 // Mock dispatchEvent to avoid side effects
-jest.mock('../../src/execution/event', () => ({
-    ...jest.requireActual('../../src/execution/event'),
-    dispatchEvent: jest.fn(),
-}));
+vi.mock('../../src/execution/event', async () => {
+    const actual = await vi.importActual<typeof import('../../src/execution/event')>('../../src/execution/event');
+    return {
+        ...actual,
+        dispatchEvent: vi.fn(),
+    };
+});
 
 const mockProcess = { name: 'mockProcess', phases: {} } as any;
 
@@ -22,10 +26,10 @@ const baseState = (): ExecutionState => ({
     activeExecutions: new Map(),
     errors: [],
     aggregatorDeferreds: new Map(),
-    registerPendingAggregator: jest.fn(),
-    resolvePendingAggregator: jest.fn(),
-    getPendingAggregator: jest.fn(),
-    pendingAggregatorIds: jest.fn(),
+    registerPendingAggregator: vi.fn(),
+    resolvePendingAggregator: vi.fn(),
+    getPendingAggregator: vi.fn(),
+    pendingAggregatorIds: vi.fn(),
     eventState: createEventState([]),
 });
 
@@ -36,7 +40,7 @@ describe('executePhase', () => {
     const context: Context = { user: 'alice' };
 
     it('executes phase without prepare or verify', async () => {
-        const phase = { name: 'test', execute: jest.fn().mockResolvedValue(output) };
+        const phase = { name: 'test', execute: vi.fn().mockResolvedValue(output) };
         const node: PhaseNode = { id: nodeId, type: 'phase', phase };
         const state = baseState();
         const result = await executePhase(nodeId, node, input, state);
@@ -45,8 +49,8 @@ describe('executePhase', () => {
     });
 
     it('executes phase with prepare', async () => {
-        const phase = { name: 'test', execute: jest.fn().mockResolvedValue(output) };
-        const prepare = jest.fn().mockResolvedValue([{ foo: 'baz' }, { user: 'bob' }]);
+        const phase = { name: 'test', execute: vi.fn().mockResolvedValue(output) };
+        const prepare = vi.fn().mockResolvedValue([{ foo: 'baz' }, { user: 'bob' }]);
         const node: PhaseNode = { id: nodeId, type: 'phase', phase, prepare };
         const state = baseState();
         state.context = context;
@@ -60,8 +64,8 @@ describe('executePhase', () => {
     it('executes phase with verify (success)', async () => {
         const phase = {
             name: 'test',
-            execute: jest.fn().mockResolvedValue(output),
-            verify: jest.fn().mockResolvedValue({ verified: true, messages: [] }),
+            execute: vi.fn().mockResolvedValue(output),
+            verify: vi.fn().mockResolvedValue({ verified: true, messages: [] }),
         };
         const node: PhaseNode = { id: nodeId, type: 'phase', phase };
         const state = baseState();
@@ -74,8 +78,8 @@ describe('executePhase', () => {
     it('throws if verify fails', async () => {
         const phase = {
             name: 'test',
-            execute: jest.fn(),
-            verify: jest.fn().mockResolvedValue({ verified: false, messages: ['bad input', 'another error'] }),
+            execute: vi.fn(),
+            verify: vi.fn().mockResolvedValue({ verified: false, messages: ['bad input', 'another error'] }),
         };
         const node: PhaseNode = { id: nodeId, type: 'phase', phase };
         const state = baseState();
@@ -87,10 +91,10 @@ describe('executePhase', () => {
     it('executes phase with both prepare and verify', async () => {
         const phase = {
             name: 'test',
-            execute: jest.fn().mockResolvedValue(output),
-            verify: jest.fn().mockResolvedValue({ verified: true, messages: [] }),
+            execute: vi.fn().mockResolvedValue(output),
+            verify: vi.fn().mockResolvedValue({ verified: true, messages: [] }),
         };
-        const prepare = jest.fn().mockResolvedValue([{ foo: 'baz' }, { user: 'bob' }]);
+        const prepare = vi.fn().mockResolvedValue([{ foo: 'baz' }, { user: 'bob' }]);
         const node: PhaseNode = { id: nodeId, type: 'phase', phase, prepare };
         const state = baseState();
         state.context = context;

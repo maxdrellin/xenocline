@@ -7,7 +7,7 @@ import { Input } from '../../src/input';
 import { Output } from '../../src/output';
 import { Context } from '../../src/context';
 import { validateNode } from '../../src/node/node';
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { createConnection } from '../../src/transition/connection';
 
 // Mock implementations for dependent types

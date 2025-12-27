@@ -1,19 +1,19 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { vi } from 'vitest';
 import { DEFAULT_LOGGER, wrapLogger, Logger } from '../src/logger';
 import { LIBRARY_NAME } from '../src/constants';
 
 const ALL_LEVELS = ['debug', 'info', 'warn', 'error', 'verbose', 'silly'] as const;
 
 describe('DEFAULT_LOGGER', () => {
-    let spies: Record<string, ReturnType<typeof jest.spyOn>>;
+    let spies: Record<string, ReturnType<typeof vi.spyOn>>;
 
     beforeEach(() => {
         spies = {
-            debug: jest.spyOn(console, 'debug').mockImplementation(() => { }),
-            info: jest.spyOn(console, 'info').mockImplementation(() => { }),
-            warn: jest.spyOn(console, 'warn').mockImplementation(() => { }),
-            error: jest.spyOn(console, 'error').mockImplementation(() => { }),
-            log: jest.spyOn(console, 'log').mockImplementation(() => { }),
+            debug: vi.spyOn(console, 'debug').mockImplementation(() => { }),
+            info: vi.spyOn(console, 'info').mockImplementation(() => { }),
+            warn: vi.spyOn(console, 'warn').mockImplementation(() => { }),
+            error: vi.spyOn(console, 'error').mockImplementation(() => { }),
+            log: vi.spyOn(console, 'log').mockImplementation(() => { }),
         };
     });
 
@@ -38,17 +38,17 @@ describe('DEFAULT_LOGGER', () => {
 });
 
 describe('wrapLogger', () => {
-    let mockLogger: jest.Mocked<Logger>;
+    let mockLogger: Logger;
 
     beforeEach(() => {
         mockLogger = {
             name: 'mock',
-            debug: jest.fn(),
-            info: jest.fn(),
-            warn: jest.fn(),
-            error: jest.fn(),
-            verbose: jest.fn(),
-            silly: jest.fn(),
+            debug: vi.fn(),
+            info: vi.fn(),
+            warn: vi.fn(),
+            error: vi.fn(),
+            verbose: vi.fn(),
+            silly: vi.fn(),
         };
     });
 

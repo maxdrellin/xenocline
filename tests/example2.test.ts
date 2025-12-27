@@ -1,5 +1,5 @@
 import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, Connection, createConnection, createTermination, createProcess, createPhase, createPhaseNode, Beginning, createBeginning } from '../src/xenocline';
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 
 
 // --- 1. Define Concrete Phase Implementations ---
@@ -119,7 +119,7 @@ describe('example1', () => {
 
     test('runExample', async () => {
         // Run the example
-        const consoleSpy = jest.spyOn(console, 'log');
+        const consoleSpy = vi.spyOn(console, 'log');
 
         await runExample();
 

@@ -1,31 +1,32 @@
+import { vi } from 'vitest';
 import { createLoggingHandler, LoggingHandlerOptions } from '../../../src/utility/event/logginghandler';
 import { Logger, LogLevel, wrapLogger } from '../../../src/logger';
 import { Event } from '../../../src/event/event';
 import { Context } from '../../../src/context';
 
-jest.mock('../../../src/logger', () => {
-    const actual = jest.requireActual('../../../src/logger');
+vi.mock('../../../src/logger', async () => {
+    const actual = await vi.importActual<typeof import('../../../src/logger')>('../../../src/logger');
     return {
         ...actual,
-        wrapLogger: jest.fn((logger, name) => ({
+        wrapLogger: vi.fn((logger, name) => ({
             ...logger,
             name: name || 'wrapped',
         })),
     };
 });
 
-const makeMockLogger = (): jest.Mocked<Logger> => ({
+const makeMockLogger = (): Logger => ({
     name: 'mock',
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    verbose: jest.fn(),
-    silly: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    verbose: vi.fn(),
+    silly: vi.fn(),
 });
 
 describe('createLoggingHandler', () => {
-    let logger: jest.Mocked<Logger>;
+    let logger: Logger;
     let event: Event;
     let context: Context;
 
@@ -38,7 +39,7 @@ describe('createLoggingHandler', () => {
             sourceId: 'testSource',
         };
         context = { user: 'testUser' };
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('logs with default log level and log function', async () => {
