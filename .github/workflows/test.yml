@@ -27,5 +27,5 @@ jobs:
       - run: pnpm test --coverage
       - uses: codecov/codecov-action@v5
         with:
-          slug: maxdrellin/xenocline
+          slug: girverket/xenocline
           token: ${{ secrets.CODECOV_TOKEN }}
