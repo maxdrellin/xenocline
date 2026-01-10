@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/maxdrellin/xenocline.git"
+    "url": "git+https://github.com/girverket/xenocline.git"
   },
   "exports": {
     ".": {
