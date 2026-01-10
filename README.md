@@ -30,7 +30,7 @@ This architecture makes **Xenocline** ideal for applications like data transform
 Here's a conceptual example in TypeScript demonstrating how to define and execute a basic Xenocline process. This simple pipeline takes a number, adds one, multiplies by two, and then converts the result to a string.
 
 ```js
-import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, createPhase, createPhaseNode, createConnection, createTermination, createProcess, Beginning, createBeginning } from '@maxdrellin/xenocline';
+import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, createPhase, createPhaseNode, createConnection, createTermination, createProcess, Beginning, createBeginning } from '@girverket/xenocline';
 
 // --- 1. Define Concrete Phase Implementations ---
 
@@ -154,7 +154,7 @@ runExample();
 This example illustrates how to configure a Xenocline process that can lead to multiple distinct end states. We'll demonstrate this by having an initial phase node branch its output to two subsequent, independent processing paths, each culminating in a unique result.
 
 ```js
-import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, Connection, createConnection, createTermination, createProcess, createPhase, createPhaseNode, Beginning, createBeginning } from '@maxdrellin/xenocline';
+import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, Connection, createConnection, createTermination, createProcess, createPhase, createPhaseNode, Beginning, createBeginning } from '@girverket/xenocline';
 
 // --- 1. Define Concrete Phase Implementations ---
 
@@ -290,7 +290,7 @@ runExample();
 This example showcases how to implement conditional logic within a Xenocline process using a Decision. A Decision phase allows the pipeline to dynamically choose its next step—either continuing to further processing or terminating based on the output of the preceding phase.
 
 ```js
-import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, createPhase, createPhaseNode, createConnection, Connection, createDecision, createTermination, createProcess, Decision, Beginning, createBeginning } from '@maxdrellin/xenocline';
+import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, createPhase, createPhaseNode, createConnection, Connection, createDecision, createTermination, createProcess, Decision, Beginning, createBeginning } from '@girverket/xenocline';
 
 // --- 1. Define Concrete Phase Implementations ---
 
@@ -415,7 +415,7 @@ This example demonstrates how to use an AggregatorNode to combine outputs from m
 
 
 ```js
-import { Input, Output, PhaseNode, Process, Phase, executeProcess, AggregationResult, Aggregator, AggregatorNode, Context, ProcessResults, PhaseResults, Termination, createPhase, createConnection, Connection, createPhaseNode, createTermination, createAggregatorNode, createProcess, createAggregator, createBeginning, Beginning } from '@maxdrellin/xenocline';
+import { Input, Output, PhaseNode, Process, Phase, executeProcess, AggregationResult, Aggregator, AggregatorNode, Context, ProcessResults, PhaseResults, Termination, createPhase, createConnection, Connection, createPhaseNode, createTermination, createAggregatorNode, createProcess, createAggregator, createBeginning, Beginning } from '@girverket/xenocline';
 
 // --- 1. Define Concrete Phase Implementations ---
 
@@ -579,7 +579,7 @@ You can now register event handlers when executing a process, providing a powerf
 
 
 ```js
-import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, createPhase, createPhaseNode, createConnection, createEventHandler, createTermination, createProcess, Beginning, createBeginning, Event } from '@maxdrellin/xenocline';
+import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, createPhase, createPhaseNode, createConnection, createEventHandler, createTermination, createProcess, Beginning, createBeginning, Event } from '@girverket/xenocline';
 
 // --- 1. Define Concrete Phase Implementations ---
 
