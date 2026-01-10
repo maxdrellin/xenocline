@@ -17,7 +17,7 @@ export default {
         }
     },
     "require": {
-        '@maxdrellin/xenocline': Xenocline
+        '@girverket/xenocline': Xenocline
     },
     transformCode: (code) => {
         // Transform TypeScript code to JavaScript for doccident documentation testing
