@@ -1,3 +1,4 @@
+import { describe,it,expect } from 'vitest';
 import { createConnection, isConnection, validateConnection, Connection, TransformFunction } from '../../src/transition/connection';
 import { Context } from '../../src/context';
 import { Output } from '../../src/output';

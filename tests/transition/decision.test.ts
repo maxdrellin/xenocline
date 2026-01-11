@@ -1,3 +1,4 @@
+import { describe,it,expect } from 'vitest';
 import { createDecision, isDecision, validateDecision, Decision } from '../../src/transition/decision';
 import { Context } from '../../src/context';
 import { Output } from '../../src/output';

@@ -17,8 +17,14 @@
       "types": "./dist/xenocline.d.ts",
       "import": "./dist/xenocline.js",
       "require": "./dist/xenocline.cjs"
-    }
+    },
+    "./package.json": "./package.json"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.md"
+  ],
   "scripts": {
     "build": "npm run lint && tsc --noEmit && vite build && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/**/*.yaml\" dist",
     "start": "node dist/xenocline.cjs",

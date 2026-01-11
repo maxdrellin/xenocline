@@ -1,3 +1,4 @@
+import { describe,it,expect } from 'vitest';
 import { createTransition, isTransition, validateTransition, Transition } from '../../src/transition/transition';
 
 describe('Transition', () => {

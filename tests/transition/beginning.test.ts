@@ -1,3 +1,4 @@
+import { describe,it,expect } from 'vitest';
 import { createBeginning, DEFAULT_BEGINNING_OPTIONS, isBeginning, validateBeginning } from '../../src/transition/beginning';
 import { Input } from '../../src/input';
 import { Context } from '../../src/context';

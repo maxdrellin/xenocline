@@ -1,3 +1,4 @@
+import { describe,it,expect } from 'vitest';
 import { createProcessEvent, isProcessEvent, ProcessEvent } from '../../src/event/process';
 import { type Process, type PhaseNode, type AggregatorNode, type Phase, createProcess } from '../../src/xenocline';
 

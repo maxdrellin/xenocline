@@ -1,3 +1,4 @@
+import { describe,it,expect } from 'vitest';
 import { createAggregatorEvent, isAggregatorEvent, AggregatorEvent, AggregatorEventStage } from '../../src/event/aggregator';
 import { Event } from '../../src/event/event';
 import { Aggregator, AggregationResult, Input, Output, Context } from '../../src/xenocline';

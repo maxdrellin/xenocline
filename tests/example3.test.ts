@@ -4,7 +4,7 @@ import {
     createConnection, Connection, createDecision, createTermination, createProcess,
     Decision, Beginning, createBeginning
 } from '../src/xenocline';
-import { vi } from 'vitest';
+import { vi, describe, test, expect } from 'vitest';
 
 // --- 1. Define Concrete Phase Implementations ---
 

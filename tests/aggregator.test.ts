@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { Aggregator, isAggregator, AggregationResult, validateAggregator } from '../src/aggregator';
 import { Input } from '../src/input';
 import { Output } from '../src/output';
