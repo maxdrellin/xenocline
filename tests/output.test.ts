@@ -1,3 +1,4 @@
+import { describe,it,expect } from 'vitest';
 import { isOutput, validateOutput, EMPTY_OUTPUT } from '../src/output';
 
 describe('Output Tests', () => {

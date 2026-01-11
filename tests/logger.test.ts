@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { DEFAULT_LOGGER, wrapLogger, Logger } from '../src/logger';
 import { LIBRARY_NAME } from '../src/constants';
 

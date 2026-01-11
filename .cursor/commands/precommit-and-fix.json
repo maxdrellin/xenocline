@@ -1,0 +1,5 @@
+{
+  "name": "Run Precommit & Fix",
+  "prompt": "Run 'npm run precommit' and fix any issues that are encountered. The precommit script runs build (which includes linting, type checking, and compilation), linting, and tests.\n\nFor each issue:\n1. Identify the root cause\n2. Fix the issue in the appropriate source file(s)\n3. Re-run the affected step to verify the fix\n\nContinue until all issues are resolved and the precommit script completes successfully."
+}
+

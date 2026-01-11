@@ -1,3 +1,4 @@
+import { describe,it,expect } from 'vitest';
 import { createNode, isNode, validateNode, Node } from '../../src/node/node';
 import { Next } from '../../src/transition/next';
 import { createTermination, Termination } from '../../src/transition/termination';

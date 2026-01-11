@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { executeProcess } from '../../src/execution/process';
 import { Phase } from '../../src/phase';
 import { PhaseNode } from '../../src/node/phasenode';
@@ -58,12 +58,12 @@ describe('executeProcess with AggregatorNode', () => {
         });
         mockAggregator = {
             name: 'mockAggregator',
-            aggregate: mockAggregatorExecute,
+            aggregate: mockAggregatorExecute as any,
         };
 
 
-        const phase1: Phase = { name: 'Phase 1', execute: mockPhase1Execute };
-        const phase2: Phase = { name: 'Phase 2', execute: mockPhase2Execute };
+        const phase1: Phase = { name: 'Phase 1', execute: mockPhase1Execute as any };
+        const phase2: Phase = { name: 'Phase 2', execute: mockPhase2Execute as any };
 
         baseProcess = {
             name: 'Test Aggregator Process',

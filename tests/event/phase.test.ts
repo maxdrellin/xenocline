@@ -1,3 +1,4 @@
+import { describe,it,expect } from 'vitest';
 import { createPhaseEvent, isPhaseEvent, PhaseEvent } from '../../src/event/phase';
 import { Phase } from '../../src/xenocline'; // Assuming Phase is a type/interface from Xenocline
 import { Event } from '../../src/event/event';

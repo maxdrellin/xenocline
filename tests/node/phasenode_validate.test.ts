@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 import { PhaseNode, validatePhaseNode } from '../../src/node/phasenode';
 import { Phase } from '../../src/phase';
 import { createTermination, Termination } from '../../src/transition/termination';

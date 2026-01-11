@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, describe, test, expect } from 'vitest';
 import { Input, Output, PhaseNode, Process, Phase, executeProcess, Context, ProcessResults, PhaseResults, Termination, createPhase, createPhaseNode, createConnection, createTermination, createProcess, Beginning, createBeginning } from '../src/xenocline';
 
 // --- 1. Define Concrete Phase Implementations ---

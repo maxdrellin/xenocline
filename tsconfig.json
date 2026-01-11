@@ -10,7 +10,7 @@
     "rootDir": ".",
     "types": [
       "node",
-      "vitest/globals"
+      "vitest"
     ],
     "incremental": true,
     "allowJs": true,
@@ -23,11 +23,10 @@
     }
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "tests/**/*"
   ],
   "exclude": [
-    "node_modules",
-    "tests",
-    "dist"
+    "node_modules"
   ]
 }

@@ -21,6 +21,7 @@ export default defineConfig([
         "dist/**",
         "node_modules/**",
         "**/*.test.ts",
+        "coverage/**",
     ]),
     {
         extends: compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended"),

@@ -1,3 +1,4 @@
+import { describe,it,expect } from 'vitest';
 import { createTermination, isTermination, validateTermination, Termination, TerminateFunction } from '../../src/transition/termination';
 import { Context } from '../../src/context';
 import { Output } from '../../src/output';

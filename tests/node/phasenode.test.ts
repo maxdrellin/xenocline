@@ -7,7 +7,7 @@ import { isDecision, Decision, createDecision } from '../../src/transition/decis
 import { Input } from '../../src/input';
 import { Output } from '../../src/output';
 import { Context } from '../../src/context';
-import { vi } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 import { Next } from 'transition/next';
 
 interface MockInput extends Input { data: string; }

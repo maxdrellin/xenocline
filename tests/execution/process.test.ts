@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { Context } from '../../src/context';
 import { executeProcess, PhaseResults, ProcessResults } from '../../src/execution/process';
 import { Input } from '../../src/input';
@@ -52,9 +52,9 @@ describe('executeProcess', () => {
         mockPhase3Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase3 processed ${input.data}` }));
         mockEndFunction = vi.fn();
 
-        const phase1: Phase = { name: 'Phase 1', execute: mockPhase1Execute };
-        const phase2: Phase = { name: 'Phase 2', execute: mockPhase2Execute };
-        const phase3: Phase = { name: 'Phase 3', execute: mockPhase3Execute };
+        const phase1: Phase = { name: 'Phase 1', execute: mockPhase1Execute as any };
+        const phase2: Phase = { name: 'Phase 2', execute: mockPhase2Execute as any };
+        const phase3: Phase = { name: 'Phase 3', execute: mockPhase3Execute as any };
 
 
         const toP2Connection: Connection = createConnection('conn1', 'p2');
@@ -103,9 +103,9 @@ describe('executeProcess', () => {
         const processWithContextTransforms: Process = {
             name: 'Context Transform Process',
             phases: {
-                p1: createPhaseNode('p1', { name: 'Phase 1', execute: mockPhase1Execute }, { next: [toP2Connection] }),
-                p2: createPhaseNode('p2', { name: 'Phase 2', execute: mockPhase2Execute }, { next: [toP3Connection] }),
-                p3: createPhaseNode('p3', { name: 'Phase 3', execute: mockPhase3Execute }),
+                p1: createPhaseNode('p1', { name: 'Phase 1', execute: mockPhase1Execute as any }, { next: [toP2Connection] }),
+                p2: createPhaseNode('p2', { name: 'Phase 2', execute: mockPhase2Execute as any }, { next: [toP3Connection] }),
+                p3: createPhaseNode('p3', { name: 'Phase 3', execute: mockPhase3Execute as any }),
             },
         };
 
@@ -198,9 +198,9 @@ describe('executeProcess', () => {
         const toNP3Connection: Connection = createConnection('conn2', 'n_p3');
         const processNoEndPhases: Process = createProcess('No Explicit End', {
             phases: {
-                n_p1: createPhaseNode('n_p1', { name: 'nP1', execute: mockP1 }, { next: [toNP2Connection, toNP3Connection] }),
-                n_p2: { id: 'n_p2', type: 'phase', phase: { name: 'nP2', execute: mockP2 } } as PhaseNode, // Implicit end
-                n_p3: { id: 'n_p3', type: 'phase', phase: { name: 'nP3', execute: mockP3 } } as PhaseNode, // Implicit end
+                n_p1: createPhaseNode('n_p1', { name: 'nP1', execute: mockP1 as any }, { next: [toNP2Connection, toNP3Connection] }),
+                n_p2: { id: 'n_p2', type: 'phase', phase: { name: 'nP2', execute: mockP2 as any } } as PhaseNode, // Implicit end
+                n_p3: { id: 'n_p3', type: 'phase', phase: { name: 'nP3', execute: mockP3 as any } } as PhaseNode, // Implicit end
             },
         });
 
@@ -293,9 +293,9 @@ describe('executeProcess', () => {
             return Promise.resolve({ ...output, terminated: true });
         });
 
-        const terminationNode: Termination<TestOutput, Context> = createTermination('term1', { terminate: mockTerminateFn });
+        const terminationNode: Termination<TestOutput, Context> = createTermination('term1', { terminate: mockTerminateFn as any });
 
-        const phase1: Phase = createPhase('Phase 1', { execute: mockPhase1Execute });
+        const phase1: Phase = createPhase('Phase 1', { execute: mockPhase1Execute as any });
         const processWithTermination: Process = {
             name: 'Termination Process',
             phases: {
@@ -321,10 +321,10 @@ describe('executeProcess', () => {
         const mockErrorPhaseExecute = vi.fn(async (input: TestInput): Promise<TestOutput> => {
             throw executionError;
         });
-        const errorPhase: Phase = { name: 'Error Phase', execute: mockErrorPhaseExecute };
+        const errorPhase: Phase = { name: 'Error Phase', execute: mockErrorPhaseExecute as any };
 
         const toP2Connection: Connection = createConnection('conn1', 'p2');
-        const phase2: Phase = createPhase('Phase 2', { execute: mockPhase2Execute });
+        const phase2: Phase = createPhase('Phase 2', { execute: mockPhase2Execute as any });
         const processWithFailingPhase: Process = {
             name: 'Failing Phase Process',
             phases: {
@@ -358,7 +358,7 @@ describe('executeProcess', () => {
     test('should handle error when a phase node ID in next does not exist', async () => {
         const toP2Connection: Connection = createConnection('conn1', 'p2');
         const toNonExistentConnection: Connection = createConnection('conn2', 'pNonExistent');
-        const phase1: Phase = createPhase('Phase 1', { execute: mockPhase1Execute });
+        const phase1: Phase = createPhase('Phase 1', { execute: mockPhase1Execute as any });
         const processWithNonExistentTarget: Process = {
             name: 'Non Existent Target Process',
             phases: {
@@ -398,8 +398,8 @@ describe('executeProcess', () => {
             { ...context, processed: true }
         ]);
         const phaseExecute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: 'executed ' + input.data }));
-        const phase: Phase = { name: 'PhaseWithPrepareProcess', execute: phaseExecute };
-        const phaseNode: PhaseNode = createPhaseNode('p1', phase, { prepare, process });
+        const phase: Phase = { name: 'PhaseWithPrepareProcess', execute: phaseExecute as any };
+        const phaseNode: PhaseNode = createPhaseNode('p1', phase, { prepare: prepare as any, process: process as any });
         const processDef: Process = createProcess('Test Prepare/Process Events', {
             phases: { p1: phaseNode },
         });
@@ -454,9 +454,9 @@ describe('executeProcess with Decision elements', () => {
         decisionLogic = vi.fn();
 
 
-        const phase1: Phase = { name: 'Phase 1', execute: mockPhase1Execute };
-        const phase2: Phase = { name: 'Phase 2', execute: mockPhase2Execute };
-        const phase3: Phase = { name: 'Phase 3', execute: mockPhase3Execute };
+        const phase1: Phase = { name: 'Phase 1', execute: mockPhase1Execute as any };
+        const phase2: Phase = { name: 'Phase 2', execute: mockPhase2Execute as any };
+        const phase3: Phase = { name: 'Phase 3', execute: mockPhase3Execute as any };
 
         baseProcess = {
             name: 'Test Decision Process',
@@ -678,8 +678,8 @@ describe('executeProcess with specific PhaseNode.next configurations', () => {
         mockPhase2Execute = vi.fn(async (input: TestInput): Promise<TestOutput> => ({ data: `phase2 processed ${input.data}` }));
         mockTerminateFn = vi.fn(async (output: TestOutput, context: Context): Promise<TestOutput> => output);
 
-        const phase1: Phase = createPhase('Phase 1', { execute: mockPhase1Execute });
-        const phase2: Phase = createPhase('Phase 2', { execute: mockPhase2Execute });
+        const phase1: Phase = createPhase('Phase 1', { execute: mockPhase1Execute as any });
+        const phase2: Phase = createPhase('Phase 2', { execute: mockPhase2Execute as any });
 
         const phase1Node: PhaseNode = createPhaseNode('p1', phase1);
         const phase2Node: PhaseNode = createPhaseNode('p2', phase2);
@@ -694,7 +694,7 @@ describe('executeProcess with specific PhaseNode.next configurations', () => {
     });
 
     test('should handle a PhaseNode with next directly as a Termination object', async () => {
-        const terminationNode: Termination<TestOutput, Context> = createTermination('termDirect', { terminate: mockTerminateFn });
+        const terminationNode: Termination<TestOutput, Context> = createTermination('termDirect', { terminate: mockTerminateFn as any });
         baseProcess.phases.p1.next = terminationNode;
 
         const initialInput: TestInput = { data: 'direct terminate' };

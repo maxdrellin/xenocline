@@ -7,7 +7,7 @@ import type { Decision, DecideFunction } from '../../src/transition/decision';
 import type { Termination } from '../../src/transition/termination';
 import type { Phase, PhaseNode } from '../../src/xenocline';
 
-import { vi } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 vi.mock('../../src/execution/node');
 vi.mock('../../src/execution/event');
@@ -36,17 +36,17 @@ describe('handleNextStep', () => {
     let mockPhaseNode: PhaseNode;
     let mockPhase: Phase;
 
-    const mockExecuteNode = executeNode as ReturnType<typeof vi.fn>;
-    const mockDispatchEvent = dispatchEvent as ReturnType<typeof vi.fn>;
-    const mockCreateDecisionEvent = createDecisionEvent as ReturnType<typeof vi.fn>;
-    const mockCreateConnectionEvent = createConnectionEvent as ReturnType<typeof vi.fn>;
-    const mockCreateTerminationEvent = createTerminationEvent as ReturnType<typeof vi.fn>;
-    const mockCreateAggregatorState = createAggregatorState as ReturnType<typeof vi.fn>;
+    const mockExecuteNode = executeNode as any;
+    const mockDispatchEvent = dispatchEvent as any;
+    const mockCreateDecisionEvent = createDecisionEvent as any;
+    const mockCreateConnectionEvent = createConnectionEvent as any;
+    const mockCreateTerminationEvent = createTerminationEvent as any;
+    const mockCreateAggregatorState = createAggregatorState as any;
 
     beforeEach(() => {
         vi.clearAllMocks();
 
-        mockCreateDecisionEvent.mockImplementation((nodeId, eventName, decision, data) => ({
+        mockCreateDecisionEvent.mockImplementation((nodeId: any, eventName: any, decision: any, data: any) => ({
             type: 'DecisionEvent',
             sourceNodeId: nodeId,
             eventName,
@@ -55,7 +55,7 @@ describe('handleNextStep', () => {
             timestamp: new Date(),
         } as any));
 
-        mockCreateConnectionEvent.mockImplementation((nodeId, eventName, conn, data) => ({
+        mockCreateConnectionEvent.mockImplementation((nodeId: any, eventName: any, conn: any, data: any) => ({
             type: 'ConnectionEvent',
             sourceNodeId: nodeId,
             eventName,
@@ -65,7 +65,7 @@ describe('handleNextStep', () => {
             timestamp: new Date(),
         } as any));
 
-        mockCreateTerminationEvent.mockImplementation((nodeId, eventName, term, data) => ({
+        mockCreateTerminationEvent.mockImplementation((nodeId: any, eventName: any, term: any, data: any) => ({
             type: 'TerminationEvent',
             sourceNodeId: nodeId,
             eventName,
@@ -247,7 +247,7 @@ describe('handleNextStep', () => {
                 terminate: mockTerminateFn,
                 type: 'termination'
             };
-            mockCreateTerminationEvent.mockImplementation((nodeId, eventName, term, data) => ({
+            mockCreateTerminationEvent.mockImplementation((nodeId: any, eventName: any, term: any, data: any) => ({
                 type: 'TerminationEvent',
                 sourceNodeId: nodeId,
                 eventName,
