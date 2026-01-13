@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { transform } from '@babel/core';
+import { transformSync } from '@swc/core';
 // eslint-disable-next-line import/extensions
 import * as Xenocline from './dist/xenocline.js';
 
@@ -21,16 +21,19 @@ export default {
     },
     transformCode: (code) => {
         // Transform TypeScript code to JavaScript for doccident documentation testing
-        const transformedCode = transform(code, {
+        const result = transformSync(code, {
             filename: 'test.ts',
-            presets: ['@babel/preset-typescript'],
-            plugins: [
-                '@babel/plugin-transform-typescript',
-                '@babel/plugin-transform-modules-commonjs'
-            ],
-            comments: true // Preserve comments
-        })?.code;
+            jsc: {
+                parser: {
+                    syntax: 'typescript',
+                },
+                target: 'es2024',
+            },
+            module: {
+                type: 'commonjs',
+            },
+        });
 
-        return transformedCode;
+        return result?.code;
     }
 }

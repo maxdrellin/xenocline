@@ -5,17 +5,14 @@ import { AggregatorNode } from '../node/aggregatornode';
 import { Output } from '../output';
 import { dispatchEvent } from './event';
 
-export class Deferred<T> {
+export interface Deferred<T> {
     promise: Promise<T>;
-    resolve!: (value: T | PromiseLike<T>) => void;
-    reject!: (reason?: any) => void;
+    resolve: (value: T | PromiseLike<T>) => void;
+    reject: (reason?: any) => void;
+}
 
-    constructor() {
-        this.promise = new Promise<T>((resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
-        });
-    }
+export function createDeferred<T>(): Deferred<T> {
+    return Promise.withResolvers<T>();
 }
 
 export interface AggregatorState {
@@ -32,7 +29,7 @@ export function createAggregatorState(): AggregatorState {
         registerPendingAggregator(nodeId: string) {
             let deferred = this.aggregatorDeferreds.get(nodeId);
             if (!deferred) {
-                deferred = new Deferred<Output>();
+                deferred = createDeferred<Output>();
                 this.aggregatorDeferreds.set(nodeId, deferred);
             }
             return deferred;
