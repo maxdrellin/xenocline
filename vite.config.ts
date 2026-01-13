@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import { VitePluginNode } from 'vite-plugin-node';
 import replace from '@rollup/plugin-replace';
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
 import dts from 'vite-plugin-dts';
 
 let gitInfo = {
@@ -93,45 +93,9 @@ export default defineConfig({
             ],
             external: [
                 '@doccident/doccident',
-                // Node built-ins
-                'fs',
-                'path',
-                'child_process',
-                'os',
-                'url',
-                'util',
-                'crypto',
-                'stream',
-                'events',
-                'buffer',
-                'process',
-                'module',
-                'assert',
-                'querystring',
-                'http',
-                'https',
-                'net',
-                'tls',
-                'dgram',
-                'dns',
-                'readline',
-                'repl',
-                'vm',
-                'zlib',
-                'console',
-                'constants',
-                'domain',
-                'punycode',
-                'string_decoder',
-                'timers',
-                'tty',
-                'v8',
-                'worker_threads',
-                'cluster',
-                'inspector',
-                'perf_hooks',
-                'async_hooks',
-                'trace_events',
+                // All Node.js built-ins (with or without node: prefix)
+                /^node:/,
+                /^(fs|path|child_process|os|url|util|crypto|stream|events|buffer|process|module|assert|querystring|http|https|net|tls|dgram|dns|readline|repl|vm|zlib|console|constants|domain|punycode|string_decoder|timers|tty|v8|worker_threads|cluster|inspector|perf_hooks|async_hooks|trace_events)$/,
             ],
         },
         modulePreload: false,
