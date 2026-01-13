@@ -26,7 +26,7 @@
     "LICENSE.md"
   ],
   "scripts": {
-    "build": "npm run lint && tsc --noEmit && vite build && copyfiles -u 1 \"src/**/*.md\" dist && copyfiles -u 1 \"src/**/*.yaml\" dist",
+    "build": "npm run lint && tsc --noEmit && vite build && node scripts/copy-assets.mjs",
     "start": "node dist/xenocline.cjs",
     "dev": "vite",
     "watch": "vite build --watch",
@@ -53,10 +53,6 @@
     "@doccident/doccident": "^0.0.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.0",
-    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
-    "@babel/plugin-transform-typescript": "^7.28.0",
-    "@babel/preset-typescript": "^7.27.1",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.30.1",
     "@rollup/plugin-replace": "^6.0.2",
@@ -65,7 +61,6 @@
     "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.36.0",
     "@vitest/coverage-v8": "^4.0.16",
-    "copyfiles": "^2.4.1",
     "eslint": "^9.30.1",
     "eslint-plugin-import": "^2.32.0",
     "globals": "^17.0.0",
