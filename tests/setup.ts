@@ -15,3 +15,5 @@ global.console = {
 // Mock process.exit to prevent actual process termination
 process.exit = vi.fn() as unknown as (code?: number) => never;
 
+
+
