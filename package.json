@@ -50,7 +50,7 @@
     "node": ">=24.0.0"
   },
   "dependencies": {
-    "@doccident/doccident": "^0.0.7"
+    "@doccident/doccident": "^0.0.9"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
